@@ -10,7 +10,7 @@ The **mold** engine is inspired by [boostache][]. Reasons why I started
   * [boostache][] is still buggy (e.g. not fully working with the [mustache][] spec).
   * [boostache][] source code seems to be immature so far and not updated.
 
-The primary goal of **mold** is at least being a [mustache][] engine without issue.
+The primary goal of **mold** is at least a fully working [mustache][] engine without a issue.
 The long term goals are:
 
   * Performance improvement: avoid many string copy operations.
