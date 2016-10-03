@@ -1,6 +1,6 @@
 # mold
 
-A **C++ Template Engine Library** supports multiple domain languages. 
+A **C++ Template Engine Library** that supports multiple domain languages. 
 
 Introduction
 ------------

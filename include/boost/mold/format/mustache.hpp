@@ -13,16 +13,6 @@
 namespace boost { namespace mold { namespace format
 {
 
-  /*
-  struct mustache_spec
-  {
-    using translater = mustache::translater;
-    using spec_type = mustache::parser::mustache_type;
-    using ast_type = mustache::ast::node_list;
-    static const spec_type &spec() { return mustache::spec(); }
-  };
-  */
-  
   using mustache_spec = spec<
     mustache::translater,
     mustache::parser::mustache_type,
