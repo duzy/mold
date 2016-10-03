@@ -109,6 +109,11 @@ namespace boost { namespace mold { namespace interpreter
           //   << std::endl;
           m.current = saved;
         }
+
+        bool is_valid() const
+        {
+          return cursor.is_valid();
+        }
         
         bool next()
         {

@@ -23,6 +23,10 @@ namespace boost { namespace mold { namespace interpreter { namespace details
       end = that->end(a);
       return &(*cur);
     }
+    bool is_valid() const
+    {
+      return cur != end;
+    }
     const value *next()
     {
       if (cur != end && ++cur != end) {

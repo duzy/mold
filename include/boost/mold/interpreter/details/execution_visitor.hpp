@@ -144,7 +144,9 @@ namespace boost { namespace mold { namespace interpreter
       template<typename Cursor>
       void iterate_scope(typename Machine::template scope<Cursor> &scope, const ops::op &body) const
       {
-        do { boost::apply_visitor(*this, body); } while (scope.next());
+        if (scope.is_valid()) {
+          do { boost::apply_visitor(*this, body); } while (scope.next());
+        }
       }
     };
 
