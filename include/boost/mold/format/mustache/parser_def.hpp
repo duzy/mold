@@ -206,7 +206,7 @@ namespace boost { namespace mold { namespace format { namespace mustache
         section_begin,
         section_end,
         partial
-    );
+    )
   } // namespace parser
   
   const parser::mustache_type &spec()
