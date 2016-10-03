@@ -13,18 +13,9 @@
 # include <string>
 namespace boost { namespace mold { namespace interpreter { namespace ops 
 {
-  /*
-  template <typename Type>
-  using forward = boost::spirit::x3::forward_ast<Type>;
-
-  template <typename ...Types>
-  using variant = boost::spirit::x3::variant<Types...>;
-  */
-  
   struct for_each;
   struct if_then_else;
   struct switch_context;
-  struct iterate_context;
   struct op_list;
 
   struct undefined {};
@@ -51,9 +42,9 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
 
   struct clear {};
 
-  struct unescape
+  struct edit
   {
-    int format; // HTML, JSON, etc.
+    std::function<void(std::string &)> f; // HTML, JSON, etc.
   };
 
   struct render
@@ -69,11 +60,10 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   struct op : boost::spirit::x3::variant<
     undefined, nop, 
     load, load_text, load_io, 
-    clear, unescape, render, render_text,
+    clear, edit, render, render_text,
     boost::spirit::x3::forward_ast<for_each>, 
     boost::spirit::x3::forward_ast<if_then_else>,
     boost::spirit::x3::forward_ast<switch_context>,
-    boost::spirit::x3::forward_ast<iterate_context>,
     boost::spirit::x3::forward_ast<op_list>>
   {
     op() : base_type() {}
@@ -82,13 +72,12 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
     op(const load_text &o) : base_type(o) {}
     op(const load_io &o) : base_type(o) {}
     op(const clear &o) : base_type(o) {}
-    op(const unescape &o) : base_type(o) {}
+    op(const edit &o) : base_type(o) {}
     op(const render &o) : base_type(o) {}
     op(const render_text &o) : base_type(o) {}
     op(const for_each &o);
     op(const if_then_else &o);
     op(const switch_context &o);
-    op(const iterate_context &o);
     op(const op_list &l);
   };
 
@@ -116,11 +105,9 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   {
     std::string name;
     bool inverted;
-    op body_else;
+    op body;
   };
 
-  struct iterate_context {};
-  
   struct op_list : std::vector<op>
   {
     using std::vector<op>::vector;
@@ -130,7 +117,6 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   inline op::op(const for_each &o) : base_type(o) {}
   inline op::op(const if_then_else &o) : base_type(o) {}
   inline op::op(const switch_context &o) : base_type(o) {}
-  inline op::op(const iterate_context &o) : base_type(o) {}
   inline op::op(const op_list &l) : base_type(l) {}
   
 }}}} // namespace boost::mold::interpreter::ops

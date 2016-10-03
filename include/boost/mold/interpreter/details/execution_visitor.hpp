@@ -26,6 +26,8 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(const ops::op_list &ol) const
       {
+        //std::clog << "op_list: " << ol.size() << std::endl;
+        
         for (auto const &op : ol) {
           boost::apply_visitor(*this, op);
         }
@@ -51,33 +53,37 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(const ops::load &op) const
       {
-        machine.render("<load>");
+        //std::clog << "load: " << op.name << std::endl;
+        
+        machine.load(op.name);
       }
 
       void operator()(const ops::load_text &op) const
       {
-        machine.render("<load_text>");
+        //std::clog << "load_text: " << op.text << std::endl;
+        
+        machine.set(op.text);
       }
 
       void operator()(const ops::load_io &op) const
       {
-        machine.render("<load_io>");
+        // TODO: ...
       }
 
       void operator()(const ops::clear &op) const
       {
-        machine.render("<clear>");
+        machine.clear();
       }
 
-      void operator()(const ops::unescape &op) const
+      void operator()(const ops::edit &op) const
       {
-        machine.render("<unescape>");
+        machine.edit(op.f);
       }
     
       void operator()(const ops::render &op) const
       {
-        machine.render_memory();
-        if (op.flush) machine.clear_memory();
+        machine.render();
+        if (op.flush) machine.clear();
       }
 
       void operator()(const ops::render_text &op) const
@@ -92,21 +98,46 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(const ops::if_then_else &op) const
       {
-        machine.render("<if_then_else>");
+        if (machine.has(op.value.name)) {
+          boost::apply_visitor(*this, op.body_then);
+        } else {
+          boost::apply_visitor(*this, op.body_else);
+        }
       }
 
       void operator()(const ops::switch_context &op) const
       {
-        machine.render("<switch_context>");
+        //std::clog << "switch_context: " << op.name << ", " << op.inverted << std::endl;
+
+        if (op.inverted) {
+          reverse_iterate_context(op.name, op.body);
+        } else {
+          iterate_context(op.name, op.body);
+        }
       }
 
-      void operator()(const ops::iterate_context &op) const
-      {
-        machine.render("<restore_context>");
-      }
-    
     private:
       Machine &machine;
+
+      void reverse_iterate_context(const std::string &name, const ops::op &body) const
+      {
+        typename Machine::template scope<typename Machine::context_reverse_cursor>
+          scope(machine, name);
+        iterate_scope(scope, body);
+      }
+      
+      void iterate_context(const std::string &name, const ops::op &body) const
+      {
+        typename Machine::template scope<typename Machine::context_cursor>
+          scope(machine, name);
+        iterate_scope(scope, body);
+      }
+
+      template<typename Cursor>
+      void iterate_scope(typename Machine::template scope<Cursor> &scope, const ops::op &body) const
+      {
+        do { boost::apply_visitor(*this, body); } while (scope.next());
+      }
     };
 
   } // namespace details

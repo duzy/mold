@@ -10,6 +10,7 @@
 #define _BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_ 1
 # include <boost/mold/format/mustache/ast.hpp>
 # include <boost/mold/interpreter/ops.hpp>
+# include <boost/mold/edit/unescape_html.hpp>
 namespace boost { namespace mold { namespace format { namespace mustache
 {
 
@@ -44,7 +45,7 @@ namespace boost { namespace mold { namespace format { namespace mustache
 
     result_type operator()(const ast::undefined &) const
     {
-      throw std::exception();
+      throw std::runtime_error("undefined ast");
     }
 
     result_type operator()(const ast::comment &) const
@@ -54,9 +55,9 @@ namespace boost { namespace mold { namespace format { namespace mustache
 
     result_type operator()(const ast::literal_text &lit) const
     {
+      //std::clog << "literal_text: " << lit << std::endl;
+      
       interpreter::ops::op_list ops{
-        //interpreter::ops::load_text{ lit, false },
-        //interpreter::ops::render{ true },
         interpreter::ops::render_text{ lit },
       };
       return ops;
@@ -64,32 +65,32 @@ namespace boost { namespace mold { namespace format { namespace mustache
 
     result_type operator()(const ast::blank_text &blank) const
     {
+      //std::clog << "blank_text: " << blank.size() << std::endl;
+      
       whitespace += blank;
-      return interpreter::ops::nop{};
+
+      return interpreter::ops::render_text{ blank };
     }
 
-    result_type operator()(const ast::eol &v) const
+    result_type operator()(const ast::eol &eol) const
     {
-      whitespace += v;
+      //std::clog << "eol: " << v.size() << std::endl;
 
-      interpreter::ops::op_list ops{
-        //interpreter::ops::load_text{ whitespace, false },
-        //interpreter::ops::render{ true },
-        interpreter::ops::render_text{ whitespace },
-      };
-
+      whitespace += eol;
       whitespace.clear();
-
-      return ops;
+      
+      return interpreter::ops::render_text{ eol };
     }
 
     result_type operator()(const ast::variable &var) const
     {
+      //std::clog << "variable: " << var.name << std::endl;
+      
       interpreter::ops::op_list ops{
         interpreter::ops::load{ var.name, false },
       };
       if (var.unescaped) {
-        ops.push_back(interpreter::ops::unescape{ 1 });
+        ops.push_back(interpreter::ops::edit{ edit::unescape_html() });
       }
       ops.push_back(interpreter::ops::render{ true });
       return ops;
@@ -106,18 +107,18 @@ namespace boost { namespace mold { namespace format { namespace mustache
 
     result_type operator()(const ast::section &sec) const
     {
-      interpreter::ops::op_list ops, body;
+      //std::clog << "section: " << sec.name << ", " << sec.inverted << ", " << sec.nodes.size() << std::endl;
+      
+      interpreter::ops::op_list body;
       for (auto const &n : sec.nodes) {
         body.push_back(boost::apply_visitor(*this, n));
       }
-      ops.push_back(interpreter::ops::switch_context{ sec.name, sec.inverted, body }),
-      ops.push_back(interpreter::ops::iterate_context{});
-      return ops;
+      return interpreter::ops::switch_context{ sec.name, sec.inverted, body };
     }
    
   private:
     translater &trans;
-    std::string &whitespace; // per line continual whitespace cache
+    std::string &whitespace; // per line whitespace cache
   };
 
   template <typename NodeType>

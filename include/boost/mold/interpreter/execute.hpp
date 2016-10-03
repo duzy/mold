@@ -17,7 +17,7 @@ namespace boost { namespace mold { namespace interpreter
   template <typename Stream, typename Template, typename Context>
   void execute(Stream &stream, Template const &t, Context const &context)
   {
-    using machine_type = details::execution_machine<Stream, Context>;
+    using machine_type = details::execution_machine<Stream>;
     machine_type machine(stream, context);
     details::execution_visitor<machine_type> exec(machine);
     exec(t);
