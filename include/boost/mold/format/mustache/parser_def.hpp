@@ -31,6 +31,7 @@ namespace boost { namespace mold { namespace format { namespace mustache
     using x3::attr;
     using x3::blank;
     using x3::char_;
+    using x3::eoi;
     using x3::eol;
     using x3::eps;
     using x3::lexeme;
@@ -72,7 +73,9 @@ namespace boost { namespace mold { namespace format { namespace mustache
     const section_end_type section_end = "section_end";
     const partial_type partial = "partial";
 
-    auto const spec_def = node_list;
+    auto const spec_def =
+      *node >> attr(ast::eoi{})
+      ;
     
     auto const node_def =
          end_of_line

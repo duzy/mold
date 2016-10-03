@@ -21,6 +21,8 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   struct undefined {};
   
   struct nop {};
+  
+  struct end {};
 
   struct load
   {
@@ -31,12 +33,6 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   struct load_text
   {
     std::string text;
-    bool incremental;
-  };
-
-  struct load_io
-  {
-    std::string name;
     bool incremental;
   };
 
@@ -58,8 +54,7 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   };
   
   struct op : boost::spirit::x3::variant<
-    undefined, nop, 
-    load, load_text, load_io, 
+    undefined, nop, end, load, load_text, 
     clear, edit, render, render_text,
     boost::spirit::x3::forward_ast<for_each>, 
     boost::spirit::x3::forward_ast<if_then_else>,
@@ -68,9 +63,9 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   {
     op() : base_type() {}
     op(const nop &o) : base_type(o) {}
+    op(const end &o) : base_type(o) {}
     op(const load &o) : base_type(o) {}
     op(const load_text &o) : base_type(o) {}
-    op(const load_io &o) : base_type(o) {}
     op(const clear &o) : base_type(o) {}
     op(const edit &o) : base_type(o) {}
     op(const render &o) : base_type(o) {}

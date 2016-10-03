@@ -51,23 +51,31 @@ namespace boost { namespace mold { namespace interpreter
       {
       }
 
+      void operator()(const ops::end &op) const
+      {
+        // FIXME: Do something for ending?
+      }
+      
       void operator()(const ops::load &op) const
       {
         //std::clog << "load: " << op.name << std::endl;
+
+        if (!op.incremental) {
+          machine.clear();
+        }
         
-        machine.load(op.name);
+        machine.load_var(op.name);
       }
 
       void operator()(const ops::load_text &op) const
       {
         //std::clog << "load_text: " << op.text << std::endl;
         
-        machine.set(op.text);
-      }
-
-      void operator()(const ops::load_io &op) const
-      {
-        // TODO: ...
+        if (!op.incremental) {
+          machine.clear();
+        }
+        
+        machine.load_text(op.text);
       }
 
       void operator()(const ops::clear &op) const

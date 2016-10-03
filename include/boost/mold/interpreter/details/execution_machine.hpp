@@ -40,27 +40,29 @@ namespace boost { namespace mold { namespace interpreter
         memory.clear();
       }
 
-      void set(const std::string &s)
-      {
-        memory = s;
-      }
-      
       void edit(const std::function<void(std::string &)> &edit)
       {
         edit(memory);
       }
 
-      void load(const std::string &name)
+      void load_text(const std::string &s)
       {
-        memory.clear(); // FIXME: incremental loading?
-        
+        memory += s;
+      }
+      
+      bool load_var(const std::string &name)
+      {
         if ( auto o = boost::get<object>(current) ) {
           auto it = o->find(name);
           if ( it != o->end() ) {
             auto s = boost::get<std::string>(&it->second);
-            if ( s ) memory = *s;
+            if ( s ) {
+              memory += *s;
+              return true;
+            }
           }
         }
+        return false;
       }
 
       bool has(const std::string &name)

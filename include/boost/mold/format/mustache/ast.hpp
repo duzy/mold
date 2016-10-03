@@ -44,6 +44,8 @@ namespace boost { namespace mold { namespace format { namespace mustache { names
     using std::string::operator=;
   };
 
+  struct eoi { /* end of input */ };
+  
   struct variable
   {
     bool unescaped;
@@ -64,9 +66,10 @@ namespace boost { namespace mold { namespace format { namespace mustache { names
     , literal_text
     , blank_text
     , eol
+    , eoi
     , variable
-    , boost::spirit::x3::forward_ast<section>
     , partial
+    , boost::spirit::x3::forward_ast<section>
     >
   {
     node() : base_type() {}
@@ -74,6 +77,7 @@ namespace boost { namespace mold { namespace format { namespace mustache { names
     node(literal_text const & rhs) : base_type(rhs) {}
     node(blank_text const & rhs) : base_type(rhs) {}
     node(eol const & rhs) : base_type(rhs) {}
+    node(eoi const & rhs) : base_type(rhs) {}
     node(variable const & rhs) : base_type(rhs) {}
     node(partial const & rhs) : base_type(rhs) {}
     node(section const & rhs);

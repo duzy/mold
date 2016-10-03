@@ -6,7 +6,7 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */
-#define BOOST_SPIRIT_X3_DEBUG
+//#define BOOST_SPIRIT_X3_DEBUG
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mold/load.hpp>
 #include <boost/mold/generate.hpp>
@@ -27,7 +27,7 @@ static auto MUSTACHE_EXAMPLE = std::string
   namespace {{ &Namespace }} // {{{HTML}}} {{&HTML}}
   {
     {{#Classes}}
-    class {{Name}};
+    class {{Name}}; 
     {{/Classes}}
     
     {{^Classes}}
@@ -42,10 +42,14 @@ static auto MUSTACHE_EXAMPLE_EXPECT = std::string
 {
   R"***(//"
   
+  // blah blah blah 
+  // blah blah blah  
+  // blah blah blah   
+  
   namespace Example // &lt;b&gt;bold&lt;/b&gt; &lt;b&gt;bold&lt;/b&gt;
   {
-    class Foo;
-    class Bar;
+    class Foo; 
+    class Bar; 
     
     class Bar;
     class Foo;
@@ -82,7 +86,13 @@ int main(int argc, char**argv)
   BOOST_TEST(i == s.end());
   BOOST_TEST(ss.str() == MUSTACHE_EXAMPLE_EXPECT);
 
+#if 0
   std::cout << "-------------------------" << std::endl;
   std::cout << ss.str() << std::endl;
+  std::cout << "-------------------------" << std::endl;
+  std::cout << MUSTACHE_EXAMPLE_EXPECT << std::endl;
+  std::cout << "-------------------------" << std::endl;
+#endif
+  
   return boost::report_errors();
 }

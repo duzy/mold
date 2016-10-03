@@ -22,12 +22,19 @@ namespace boost { namespace mold { namespace format { namespace mustache
     interpreter::ops::op translate(const NodeType &);
   };
 
+  struct translation_state
+  {
+    int inline_directives; // counting directives (inline) section/conditional tags
+    int inline_entities; // counting entities that renders, e.g. text/variables.
+    std::string whitespace; // whitespace cached
+  };
+  
   struct translation_visitor
   {
     using result_type = interpreter::ops::op;
 
-    explicit translation_visitor(translater &tr, std::string &whitespace)
-      : trans(tr), whitespace(whitespace) {}
+    explicit translation_visitor(translater &tr, translation_state &state)
+      : trans(tr), state(state) {}
     
     result_type operator()(const ast::node_list &l) const
     {
@@ -45,6 +52,7 @@ namespace boost { namespace mold { namespace format { namespace mustache
 
     result_type operator()(const ast::undefined &) const
     {
+      // This should never happen!
       throw std::runtime_error("undefined ast");
     }
 
@@ -53,80 +61,123 @@ namespace boost { namespace mold { namespace format { namespace mustache
       return interpreter::ops::nop{};
     }
 
-    result_type operator()(const ast::literal_text &lit) const
-    {
-      //std::clog << "literal_text: " << lit << std::endl;
-      
-      interpreter::ops::op_list ops{
-        interpreter::ops::render_text{ lit },
-      };
-      return ops;
-    }
-
     result_type operator()(const ast::blank_text &blank) const
     {
-      //std::clog << "blank_text: " << blank.size() << std::endl;
-      
-      whitespace += blank;
+      // Caches whitespaces to decide rendering later.
+      state.whitespace += blank;
 
-      return interpreter::ops::render_text{ blank };
+      return interpreter::ops::nop{};
     }
 
     result_type operator()(const ast::eol &eol) const
     {
-      //std::clog << "eol: " << v.size() << std::endl;
-
-      whitespace += eol;
-      whitespace.clear();
+      // If there's only a standalone directive in the line.
+      if (state.inline_directives == 1 && state.inline_entities == 0) {
+        state.inline_directives = 0;
+        state.whitespace.clear();
+        return interpreter::ops::nop(); // Do nothing.
+      }
       
-      return interpreter::ops::render_text{ eol };
+      state.whitespace += eol;
+      state.inline_directives = 0;
+      state.inline_entities = 0;
+      
+      auto op = interpreter::ops::render_text{ state.whitespace };
+
+      state.whitespace.clear();
+      
+      return op;
+    }
+
+    result_type operator()(const ast::eoi & /*unused*/) const
+    {
+      state.inline_directives = 0;
+      state.inline_entities = 0;
+
+      if (state.whitespace.empty()) {
+        return interpreter::ops::end{};
+      }
+
+      auto ops = interpreter::ops::op_list{
+        interpreter::ops::render_text{ state.whitespace },
+        interpreter::ops::end{},
+      };
+      
+      state.whitespace.clear();
+      
+      return ops;
+    }
+
+    result_type operator()(const ast::literal_text &lit) const
+    {
+      interpreter::ops::op_list ops;
+
+      state.inline_entities += 1;
+
+      if (0 < state.whitespace.size()) {
+        ops.push_back(interpreter::ops::render_text{ state.whitespace });
+        state.whitespace.clear();
+      }
+      
+      ops.push_back(interpreter::ops::render_text{ lit });
+      return ops;
     }
 
     result_type operator()(const ast::variable &var) const
     {
-      //std::clog << "variable: " << var.name << std::endl;
+      interpreter::ops::op_list ops;
+
+      state.inline_entities += 1;
       
-      interpreter::ops::op_list ops{
-        interpreter::ops::load{ var.name, false },
-      };
+      auto has_spaces = 0 < state.whitespace.size();
+      if ( has_spaces ) {
+        ops.push_back(interpreter::ops::load_text{ state.whitespace, false });
+        state.whitespace.clear();
+      }
+
+      ops.push_back(interpreter::ops::load{ var.name, has_spaces });
+      
       if (var.unescaped) {
         ops.push_back(interpreter::ops::edit{ edit::unescape_html() });
       }
+      
       ops.push_back(interpreter::ops::render{ true });
-      return ops;
-    }
-
-    result_type operator()(const ast::partial &par) const
-    {
-      interpreter::ops::op_list ops{
-        interpreter::ops::load_io{ par, false },
-        interpreter::ops::render{ true },
-      };
       return ops;
     }
 
     result_type operator()(const ast::section &sec) const
     {
-      //std::clog << "section: " << sec.name << ", " << sec.inverted << ", " << sec.nodes.size() << std::endl;
+      // Counting section begin directive.
+      state.inline_directives += 1;
       
       interpreter::ops::op_list body;
       for (auto const &n : sec.nodes) {
         body.push_back(boost::apply_visitor(*this, n));
       }
+
+      // Counting section end directive.
+      state.inline_directives += 1;
+      
       return interpreter::ops::switch_context{ sec.name, sec.inverted, body };
     }
-   
+
+    result_type operator()(const ast::partial &par) const
+    {
+      // TODO: load file and compile it into a `body`
+      return interpreter::ops::render_text{ "<partial:"+par+">" };
+    }
+
   private:
     translater &trans;
-    std::string &whitespace; // per line whitespace cache
+    translation_state &state;
   };
 
   template <typename NodeType>
-  interpreter::ops::op translater::translate(const NodeType &node)
+  interpreter::ops::op translater::translate(const NodeType &ast)
   {
-    std::string whitespace;
-    translation_visitor trans(*this, whitespace);
-    return trans(node);
+    translation_state state{ 0, 0 };
+    translation_visitor trans(*this, state);
+    return trans(ast);
   }
   
 }}}} // namespace boost::mold::format::mustache
