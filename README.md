@@ -35,12 +35,14 @@ static auto MUSTACHE_EXAMPLE = std::string
 {
   R"***(//"
   
-  namespace {{ &Namespace }}
-  {
-    {{#Classes}}
-    class {{Name}};
-    {{/Classes}}
-  }
+  Dear {{FirstName}},
+
+  It's been long time since we last met.
+
+  {{Story}}
+  
+  Best Regards,
+  {{MyName}}
   
   )***" + 4
 };//";
@@ -51,12 +53,9 @@ int main(int argc, char**argv)
 {
   mold::object context
   {
-    { "Namespace", "Example" },
-    { "Classes", mold::array{
-        mold::object{{ "Name", "Foo" }},
-        mold::object{{ "Name", "Bar" }},
-        }
-    },
+    { "FirstName", "Tony" },
+    { "MyName", "Mold" },
+    { "Story", "Blah blah blah, here goes the long story..." },
   };
   
   auto const &s = MUSTACHE_EXAMPLE;
@@ -69,13 +68,16 @@ int main(int argc, char**argv)
 
 Expected result on `std::cout`:
 
-```c++
+```
   
-  namespace Example
-  {
-    class Foo;
-    class Bar;
-  }
+  Dear Tony,
+
+  It's been long time since we last met.
+
+  Blah blah blah, here goes the long story...
+  
+  Best Regards,
+  Mold
   
 ```
 
