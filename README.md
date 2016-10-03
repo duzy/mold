@@ -69,5 +69,17 @@ int main(int argc, char**argv)
 }
 ```
 
+Expected result on `std::cout`:
+
+```c++
+  
+  namespace Example
+  {
+    class Foo;
+    class Bar;
+  }
+  
+```
+
 [boostache]: https://github.com/cierelabs/boostache
 [mustache]: http://mustache.github.io/mustache.5.html
