@@ -85,4 +85,5 @@ The **mold** engine supports multiple template domain languages. Currently it ha
 
 [boostache]: https://github.com/cierelabs/boostache
 [mustache]: http://mustache.github.io/mustache.5.html
+[tildache]: https://github.com/duzy/mold/wiki/tildache
 [tild-ext]: https://github.com/duzy/mold/wiki/tild-extensions
