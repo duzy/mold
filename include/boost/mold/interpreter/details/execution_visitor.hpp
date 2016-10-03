@@ -8,8 +8,8 @@
  */ 
 #ifndef _BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_VISITOR_HPP_
 #define _BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_VISITOR_HPP_ 1
+# include <boost/mold/interpreter/details/context_cursors.hpp>
 # include <boost/mold/interpreter/ops.hpp>
-
 namespace boost { namespace mold { namespace interpreter
 {
   using undefined_behavior = std::runtime_error;
@@ -121,14 +121,14 @@ namespace boost { namespace mold { namespace interpreter
 
       void reverse_iterate_context(const std::string &name, const ops::op &body) const
       {
-        typename Machine::template scope<typename Machine::context_reverse_cursor>
+        typename Machine::template scope<details::context_reverse_cursor>
           scope(machine, name);
         iterate_scope(scope, body);
       }
       
       void iterate_context(const std::string &name, const ops::op &body) const
       {
-        typename Machine::template scope<typename Machine::context_cursor>
+        typename Machine::template scope<details::context_cursor>
           scope(machine, name);
         iterate_scope(scope, body);
       }

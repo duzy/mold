@@ -69,38 +69,6 @@ namespace boost { namespace mold { namespace interpreter
         return o && o->find(name) != o->end();
       }
 
-      template<typename Iterator, typename Derived>
-      struct cursor
-      {
-        Iterator cur, end;
-        const value *init(const array *a)
-        {
-          auto that = static_cast<Derived*>(this);
-          cur = that->begin(a);
-          end = that->end(a);
-          return &(*cur);
-        }
-        const value *next()
-        {
-          if (cur != end && ++cur != end) {
-            return &( *cur );
-          }
-          return nullptr;
-        }
-      };
-      
-      struct context_cursor : cursor<array::const_iterator, context_cursor>
-      {
-        auto begin(const array *a) { return a->begin(); }
-        auto end(const array *a) { return a->end(); }
-      };
-
-      struct context_reverse_cursor : cursor<array::const_reverse_iterator, context_reverse_cursor>
-      {
-        auto begin(const array *a) { return a->rbegin(); }
-        auto end(const array *a) { return a->rend(); }
-      };
-      
       template <typename Cursor>
       struct scope
       {
