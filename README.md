@@ -27,10 +27,8 @@ Examples
 --------
 
 ```c++
-#include <boost/mold/load.hpp>
-#include <boost/mold/generate.hpp>
+#include <boost/mold/mold.hpp>
 #include <boost/mold/format/mustache.hpp>
-#include <boost/mold/format/mustache/parser_def.hpp>
 #include <iostream>
 
 static auto MUSTACHE_EXAMPLE = std::string

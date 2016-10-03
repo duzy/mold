@@ -8,11 +8,12 @@
  */ 
 #ifndef _BOOST_MOLD_FORMAT_MUSTACHE_HPP_
 #define _BOOST_MOLD_FORMAT_MUSTACHE_HPP_ 1
-# include <boost/mold/format/mustache/parser.hpp>
 # include <boost/mold/format/mustache/translater.hpp>
+# include <boost/mold/format/mustache/parser_def.hpp>
 namespace boost { namespace mold { namespace format
 {
-  
+
+  /*
   struct mustache_spec
   {
     using translater = mustache::translater;
@@ -20,6 +21,13 @@ namespace boost { namespace mold { namespace format
     using ast_type = mustache::ast::node_list;
     static const spec_type &spec() { return mustache::spec(); }
   };
+  */
+  
+  using mustache_spec = spec<
+    mustache::translater,
+    mustache::parser::mustache_type,
+    mustache::ast::node_list,
+    mustache::spec>;
   
 }}} // namespace boost::mold::format
 #endif//_BOOST_MOLD_FORMAT_MUSTACHE_HPP_

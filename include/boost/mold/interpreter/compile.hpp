@@ -18,7 +18,7 @@ namespace boost { namespace mold { namespace interpreter
   ops::op compile(Iterator &it, const Iterator &end)
   {
     typename Format::ast_type ast;
-    if (boost::spirit::x3::parse(it, end, Format::spec(), ast)
+    if (boost::spirit::x3::parse(it, end, Format::get(), ast)
         && it == end) {
       typename Format::translater t;
       return t.translate(ast);

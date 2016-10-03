@@ -8,10 +8,8 @@
  */
 //#define BOOST_SPIRIT_X3_DEBUG
 #include <boost/core/lightweight_test.hpp>
-#include <boost/mold/load.hpp>
-#include <boost/mold/generate.hpp>
+#include <boost/mold/mold.hpp>
 #include <boost/mold/format/mustache.hpp>
-#include <boost/mold/format/mustache/parser_def.hpp>
 #include <map>
 #include <sstream>
 #include <iostream>
