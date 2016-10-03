@@ -17,12 +17,6 @@ The long term goals are:
   * Support multiple domain languages after [mustache][].
   * Mordern C++ design and C++1z friendly.
 
-Supported Formats
------------------
-
-The **mold** engine is possible to support multiple template domain languages. But
-only [mustache][] is available so far.
-
 Examples
 --------
 
@@ -81,5 +75,14 @@ Expected result on `std::cout`:
   
 ```
 
+Supported Formats
+-----------------
+
+The **mold** engine supports multiple template domain languages. Currently it has:
+
+  * [mustache][] - Logic-less templates.
+  * [tildache][] - A variant of [mustache][] with [tild extensions][tild-ext]. (*)
+
 [boostache]: https://github.com/cierelabs/boostache
 [mustache]: http://mustache.github.io/mustache.5.html
+[tild-ext]: https://github.com/duzy/mold/wiki/tild-extensions
