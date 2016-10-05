@@ -10,6 +10,8 @@
 #define _BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_MACHINE_HPP_ 1
 # include <boost/mold/interpreter/ops.hpp>
 # include <boost/mold/value.hpp>
+# include <stack>
+# include <list>
 namespace boost { namespace mold { namespace interpreter
 {
   namespace details
@@ -17,6 +19,9 @@ namespace boost { namespace mold { namespace interpreter
     template <typename Stream>
     struct execution_machine
     {
+      template<typename T>
+      using stack_type = std::stack<T, std::list<T>>;
+      
       execution_machine(Stream &stream, const value &v)
         : stream(stream)
         , context(v)
@@ -134,6 +139,7 @@ namespace boost { namespace mold { namespace interpreter
       const value context;
       const value*current;
       std::string memory;
+      stack_type<std::string> stack;
     };
   
   } // namespace details

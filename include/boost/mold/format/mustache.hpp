@@ -1,5 +1,5 @@
 /**
- *  \file boost/mold/format/mustache/grammar.hpp
+ *  \file boost/mold/format/mustache.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  

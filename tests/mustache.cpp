@@ -1,5 +1,5 @@
 /**
- *  \file example.hpp
+ *  \file mustache.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  

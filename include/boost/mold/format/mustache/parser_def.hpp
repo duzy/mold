@@ -143,30 +143,23 @@ namespace boost { namespace mold { namespace format { namespace mustache
       ]
       ;
 
-#if 0
-    auto tags = std::list<std::string>{};
-    auto set_tag = [&](auto &c){ tags.push_back(_attr(c)); };
-    auto see_tag = [&](auto &c){ _pass(c) = _attr(c) == tags.back(); tags.pop_back(); };
-#else
     auto set_tag = [](auto &c){ _val(c).name = _attr(c); };
     auto see_tag = [](auto &c){ _pass(c) = _attr(c) == _val(c).name; };
-#endif
-    
     auto const section_def =
       matches[&(lit("{{") >> '^')][( [](auto &c){ _val(c).inverted = _attr(c); } )]
-      >> section_begin  [ set_tag ]
-      >> node_list      [( [](auto &c){ _val(c).nodes = _attr(c); } )]
-      >> section_end    [ see_tag ]
+      >> section_begin [ set_tag ]
+      >> node_list     [( [](auto &c){ _val(c).nodes = _attr(c); } )]
+      >> section_end   [ see_tag ]
       ;
 
     auto const section_begin_def =
       lit("{{")
       >> skip(space)
       [
-       (lit('#') | '^')
-       >> identifier
-       >> "}}"
-       //>> omit[ no_skip[ (*char_(" ") >> eol) ] ]
+      (lit('#') | '^')
+      >> identifier
+      >> "}}"
+      //>> omit[ no_skip[ (*char_(" ") >> eol) ] ]
       ]
       ;
 

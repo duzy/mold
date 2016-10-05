@@ -1,5 +1,5 @@
 /**
- *  \file boost/mold/format/mustache/grammar.hpp
+ *  \file boost/mold/format/mustache/translater.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
@@ -8,33 +8,34 @@
  */ 
 #ifndef _BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_
 #define _BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_ 1
+# include <boost/mold/format/details/basic_translater.hpp>
 # include <boost/mold/format/mustache/ast.hpp>
-# include <boost/mold/interpreter/ops.hpp>
 # include <boost/mold/edit/unescape_html.hpp>
 namespace boost { namespace mold { namespace format { namespace mustache
 {
-
-  struct translation_visitor;
-  
-  struct translater
-  {
-    template <typename NodeType>
-    interpreter::ops::op translate(const NodeType &);
-  };
 
   struct translation_state
   {
     int inline_directives; // counting directives (inline) section/conditional tags
     int inline_entities; // counting entities that renders, e.g. text/variables.
     std::string whitespace; // whitespace cached
+
+    translation_state()
+      : inline_directives(0)
+      , inline_entities(0)
+    {
+    }
+
+  private:
+    translation_state(const translation_state&) = delete;
+    void operator=(const translation_state&) = delete;
   };
   
   struct translation_visitor
   {
     using result_type = interpreter::ops::op;
 
-    explicit translation_visitor(translater &tr, translation_state &state)
-      : trans(tr), state(state) {}
+    explicit translation_visitor(translation_state &state) : state(state) {}
     
     result_type operator()(const ast::node_list &l) const
     {
@@ -167,18 +168,12 @@ namespace boost { namespace mold { namespace format { namespace mustache
       return interpreter::ops::render_text{ "<partial:"+par+">" };
     }
 
-  private:
-    translater &trans;
+  protected:
     translation_state &state;
   };
 
-  template <typename NodeType>
-  interpreter::ops::op translater::translate(const NodeType &ast)
-  {
-    translation_state state{ 0, 0 };
-    translation_visitor trans(*this, state);
-    return trans(ast);
-  }
+  using translater = details::basic_translater<
+    translation_state, translation_visitor>;
   
 }}}} // namespace boost::mold::format::mustache
 #endif//_BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_
