@@ -24,19 +24,29 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   
   struct end {};
 
+  enum class kind // object kind
+  {
+    undefined,
+    immediate,
+    variable,
+    memory,
+    stack,
+    reg,
+  };
+
   struct load
   {
-    std::string name;
-    bool incremental;
+    kind k = kind::undefined;
+    std::string s; //!< immediate, variable
+    unsigned int i = 0; //!< reg
+    bool incremental = false;
   };
 
-  struct load_text
+  struct clear
   {
-    std::string text;
-    bool incremental;
+    kind k = kind::undefined;
+    unsigned int i = 0; //!< reg
   };
-
-  struct clear {};
 
   struct edit
   {
@@ -45,17 +55,65 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
 
   struct render
   {
-    bool flush; // flush memory
+    kind k = kind::undefined;
+    std::string s; //!< immediate, memory
+    unsigned int i = 0; //!< reg
+    bool flush; // flush memory, stack or reg
   };
 
-  struct render_text
+  struct test_cursor
   {
-    std::string text;
+    // std::numeric_limits<>::min() is the first
+    // std::numeric_limits<>::max() is the last
+    unsigned int pos;
+  };
+  
+  struct push
+  {
+    kind k = kind::immediate;
+    std::string s;
+    unsigned int i = 0;
+  };
+  
+  struct pop
+  {
+    bool memorize;
+  };
+
+  struct new_stack {};
+  struct pop_stack {};
+
+  enum class unary
+  {
+    math_posit,
+    math_negate,
+    test_negative,
+    test_positive,
+  };
+  
+  enum class binary
+  {
+    math_plus,
+    math_minus,
+    math_times,
+    math_divide,
+    test_equal,
+    test_not_equal,
+    test_less,
+    test_less_equal,
+    test_greater,
+    test_greater_equal,
+    test_and,
+    test_or,
+    range,
+    select,
   };
   
   struct op : boost::spirit::x3::variant<
-    undefined, nop, end, load, load_text, 
-    clear, edit, render, render_text,
+    undefined, nop, end, load,
+    clear, edit, render,
+    push, pop, new_stack, pop_stack,
+    test_cursor, unary, binary,
     boost::spirit::x3::forward_ast<for_each>, 
     boost::spirit::x3::forward_ast<if_then_else>,
     boost::spirit::x3::forward_ast<switch_context>,
@@ -65,11 +123,16 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
     op(const nop &o) : base_type(o) {}
     op(const end &o) : base_type(o) {}
     op(const load &o) : base_type(o) {}
-    op(const load_text &o) : base_type(o) {}
     op(const clear &o) : base_type(o) {}
     op(const edit &o) : base_type(o) {}
     op(const render &o) : base_type(o) {}
-    op(const render_text &o) : base_type(o) {}
+    op(const push &o) : base_type(o) {}
+    op(const pop &o) : base_type(o) {}
+    op(const new_stack &o) : base_type(o) {}
+    op(const pop_stack &o) : base_type(o) {}
+    op(const test_cursor &o) : base_type(o) {}
+    op(const unary &o) : base_type(o) {}
+    op(const binary &o) : base_type(o) {}
     op(const for_each &o);
     op(const if_then_else &o);
     op(const switch_context &o);
@@ -86,7 +149,7 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   struct for_each
   {
     std::string name;
-    op value;
+    op body;
   };
 
   struct if_then_else

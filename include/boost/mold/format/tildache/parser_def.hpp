@@ -45,7 +45,7 @@ namespace boost { namespace mold { namespace format { namespace tildache
     
     using node_list_type = x3::rule<struct node_list_class, ast::node_list>;
     using node_type = x3::rule<struct node_class, ast::node>;
-    using tild_type = x3::rule<struct tild_class, ast::expression>;
+    using tild_type = x3::rule<struct tild_class, ast::tild>;
     using tild_section_type = x3::rule<struct tild_section_class, ast::tild_section>;
     using mustache_section_type = x3::rule<struct mustache_section_class, ast::mustache_section>;
     using expression_type = x3::rule<struct expression_class, ast::expression>;
@@ -173,10 +173,10 @@ namespace boost { namespace mold { namespace format { namespace tildache
     auto const primary_expr_def =
         sk[predictors]
       | sk[placeholders]
-      | sk[emit_text]
-      | sk[single_quoted]
-      | sk[double_quoted]
-      | sk['('] > expression > sk[')']
+      | (ss >> emit_text)
+      | (ss >> single_quoted)
+      | (ss >> double_quoted)
+      | (sk['('] > expression > sk[')'])
       | sk[!preserved >> identifier]
       ;
 
@@ -267,12 +267,12 @@ namespace boost { namespace mold { namespace format { namespace tildache
         ;
 
       predictors.add
-        ("first")
-        ("last")
+        ("first", ast::predictor::first)
+        ("last", ast::predictor::last)
         ;
 
       placeholders.add
-        ("_")
+        ("_", ast::placeholder::underscore)
         ;
 
       keywords.add

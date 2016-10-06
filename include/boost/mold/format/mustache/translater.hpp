@@ -83,7 +83,8 @@ namespace boost { namespace mold { namespace format { namespace mustache
       state.inline_directives = 0;
       state.inline_entities = 0;
       
-      auto op = interpreter::ops::render_text{ state.whitespace };
+      auto op = interpreter::ops::render{ 
+        interpreter::ops::kind::immediate, state.whitespace };
 
       state.whitespace.clear();
       
@@ -100,7 +101,8 @@ namespace boost { namespace mold { namespace format { namespace mustache
       }
 
       auto ops = interpreter::ops::op_list{
-        interpreter::ops::render_text{ state.whitespace },
+        interpreter::ops::render{ 
+          interpreter::ops::kind::immediate, state.whitespace },
         interpreter::ops::end{},
       };
       
@@ -116,11 +118,13 @@ namespace boost { namespace mold { namespace format { namespace mustache
       state.inline_entities += 1;
 
       if (0 < state.whitespace.size()) {
-        ops.push_back(interpreter::ops::render_text{ state.whitespace });
+        ops.push_back(interpreter::ops::render{ 
+            interpreter::ops::kind::immediate, state.whitespace });
         state.whitespace.clear();
       }
       
-      ops.push_back(interpreter::ops::render_text{ lit });
+      ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::immediate, lit });
       return ops;
     }
 
@@ -132,17 +136,24 @@ namespace boost { namespace mold { namespace format { namespace mustache
       
       auto has_spaces = 0 < state.whitespace.size();
       if ( has_spaces ) {
-        ops.push_back(interpreter::ops::load_text{ state.whitespace, false });
+        ops.push_back(interpreter::ops::load{
+          interpreter::ops::kind::immediate,
+          { state.whitespace }, false
+        });
         state.whitespace.clear();
       }
 
-      ops.push_back(interpreter::ops::load{ var.name, has_spaces });
+      ops.push_back(interpreter::ops::load{ 
+        interpreter::ops::kind::variable,
+        var.name, has_spaces
+      });
       
       if (var.unescaped) {
         ops.push_back(interpreter::ops::edit{ edit::unescape_html() });
       }
       
-      ops.push_back(interpreter::ops::render{ true });
+      ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::memory, "", 0, true });
       return ops;
     }
 
@@ -156,7 +167,7 @@ namespace boost { namespace mold { namespace format { namespace mustache
         body.push_back(boost::apply_visitor(*this, n));
       }
 
-      // Counting section end directive.
+      // Decreasing section end directive.
       state.inline_directives += 1;
       
       return interpreter::ops::switch_context{ sec.name, sec.inverted, body };
@@ -165,7 +176,8 @@ namespace boost { namespace mold { namespace format { namespace mustache
     result_type operator()(const ast::partial &par) const
     {
       // TODO: load file and compile it into a `body`
-      return interpreter::ops::render_text{ "<partial:"+par+">" };
+      return interpreter::ops::render{ 
+        interpreter::ops::kind::immediate, "<partial:"+par+">" };
     }
 
   protected:

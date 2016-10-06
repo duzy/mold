@@ -32,15 +32,15 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
     using std::string::operator=;
   };
 
-  enum predictor
+  enum class predictor
   {
-    pred_first,
-    pred_last,
+    first,
+    last,
   };
 
-  enum placeholder
+  enum class placeholder
   {
-    place_understore,
+    underscore,
   };
   
   struct operand : boost::spirit::x3::variant<
@@ -83,7 +83,6 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
     op_or,
     op_range, // ..
     op_sel,   // :
-    op_emit,  // {...}
   };
 
   struct unary
@@ -106,6 +105,11 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
     operations rest;
   };
 
+  struct tild
+  {
+    expression expr;
+  };
+  
   struct statement
   {
     // TODO: tild statement
@@ -116,7 +120,7 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
   
   struct node : boost::spirit::x3::variant<
       mustache_node
-    , expression
+    , tild
     , statement
     , boost::spirit::x3::forward_ast<mustache_section>
     , boost::spirit::x3::forward_ast<tild_section>
@@ -124,7 +128,7 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
   {
     node() : base_type() {}
     node(mustache_node const & rhs) : base_type(rhs) {}
-    node(expression const & rhs) : base_type(rhs) {}
+    node(tild const & rhs) : base_type(rhs) {}
     node(statement const & rhs) : base_type(rhs) {}
     node(mustache_section const & rhs);
     node(tild_section const & rhs);
@@ -168,6 +172,11 @@ BOOST_FUSION_ADAPT_STRUCT(
    boost::mold::format::tildache::ast::expression,
    (boost::mold::format::tildache::ast::operand, first)
    (boost::mold::format::tildache::ast::operations, rest)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+   boost::mold::format::tildache::ast::tild,
+   (boost::mold::format::tildache::ast::expression, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

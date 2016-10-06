@@ -18,22 +18,35 @@ static auto TILDACHE_EXAMPLE = std::string
 {
   R"***(//"
 
-  {{~  !  "yes" }}
-  {{ ~ { , }}}
-  {{~ "foobar" }}
-  {{~ 'foobar' }}
-  {{~ + "1" }}
-  {{~ "1" + "2" }}
-  {{~"yes":"foobar"}}
-  {{~ "foobar" : _ }}
-  {{~ 'foobar' : _ }}
-  {{~ !""}}
-  {{~ "1".."3" : _ }}
+  ‘{{ ~ { immediate }}}’ <- ‘ immediate ’
+  {{~  "yes" }} <- yes
+  '{{~  !  "yes" }}' <- ''
+  {{~  !  "" }} <- true
+  {{~ + "-1" }} <- -1
+  {{~ + "abc" }} <- 0
+  {{~ + " 1" }} <- 1
+  {{~ - " 2 " }} <- -2
+  {{~ - "-1" }} <- 1
+  {{~ "1" + "2" }} <- 3
+  {{~ "2" - "3" }} <- -1
+  {{~ "2" * "3" }} <- 6
+  {{~ "3" / "2" }} <- 1
+  {{~ "6" / "2" }} <- 3
+  {{~ "3" / "0" }} <- NaN
+  {{~ "foobar" }} <- foobar
+  {{~ 'foobar' }} <- foobar
+  {{~"yes":"foobar"}} <- foobar
+  {{~ !'' : "foobar" }} <- foobar
+  '{{~ '' : "nothing" }}' <- ''
+  '{{~ "foobar" : _ }}' <- ''
+  {{~ !""}} <- true
+  {{~ "1".."3" }} <- 123
+  {{~ "1".."4" : _ }} <- 123
   {{#Members}}{{Name}}{{~ !last : {, }}}{{/Members}}
   {{~ "1".."3" ~}}
-  Item #{{~_}}
+  Item #{{a}}{{~_}}
   {{~}}
-  
+  -
   )***" + 4
 };//";
 
@@ -41,14 +54,35 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
 {
   R"***(//"
 
-   , 
-  foobar
-  foobar
+  ‘ immediate ’ <- ‘ immediate ’
+  yes <- yes
+  '' <- ''
+  true <- true
+  -1 <- -1
+  0 <- 0
+  1 <- 1
+  -2 <- -2
+  1 <- 1
+  3 <- 3
+  -1 <- -1
+  6 <- 6
+  1 <- 1
+  3 <- 3
+  NaN <- NaN
+  foobar <- foobar
+  foobar <- foobar
+  foobar <- foobar
+  foobar <- foobar
+  '' <- ''
+  '' <- ''
+  true <- true
+  123 <- 123
+  123 <- 123
   Foo, Bar, Foobar
-  123
   Item #1
   Item #2
   Item #3
+  -
   
   )***" + 4
 };//";
@@ -77,8 +111,6 @@ int main(int argc, char**argv)
   BOOST_TEST(ss.str() == TILDACHE_EXAMPLE_EXPECT);
 
 #if 1
-  std::cout << "-------------------------" << std::endl;
-  std::cout << &(*i) << std::endl;
   std::cout << "-------------------------" << std::endl;
   std::cout << ss.str() << std::endl;
   std::cout << "-------------------------" << std::endl;
