@@ -1,6 +1,6 @@
 # mold
 
-A **C++ Template Engine Library** is a header-only library supports multiple domain languages. 
+**C++ Template Engine Library** is a header-only library supports multiple domain languages. 
 
 Introduction
 ------------
