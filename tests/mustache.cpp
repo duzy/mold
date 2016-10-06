@@ -28,6 +28,12 @@ static auto MUSTACHE_EXAMPLE = std::string
     class {{Name}}; 
     {{/Classes}}
     
+    {{#Classes}}
+    {{Name}}
+    {{/Classes}}
+    
+    {{#Classes}}{{Name}}{{/Classes}}
+    
     {{^Classes}}
     class {{{Name}}};
     {{/Classes}}
@@ -48,6 +54,11 @@ static auto MUSTACHE_EXAMPLE_EXPECT = std::string
   {
     class Foo; 
     class Bar; 
+    
+    Foo
+    Bar
+    
+    FooBar
     
     class Bar;
     class Foo;
@@ -84,7 +95,7 @@ int main(int argc, char**argv)
   BOOST_TEST(i == s.end());
   BOOST_TEST(ss.str() == MUSTACHE_EXAMPLE_EXPECT);
 
-#if 0
+#if 1
   std::cout << "-------------------------" << std::endl;
   std::cout << ss.str() << std::endl;
   std::cout << "-------------------------" << std::endl;

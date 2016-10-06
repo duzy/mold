@@ -34,6 +34,14 @@ namespace boost { namespace mold { namespace format { namespace tildache
 
     result_type operator()(const ast::mustache_node &n) const
     {
+      /*
+      if ( 0 < state.whitespace.size() ) {
+        std::clog << state.inline_directives << std::endl;
+        ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::immediate, state.whitespace });
+        state.whitespace.clear();
+      }
+      */
       auto base = static_cast<const mustache::translation_visitor*>(this);
       return boost::apply_visitor(*base, n);
     }
@@ -49,8 +57,7 @@ namespace boost { namespace mold { namespace format { namespace tildache
       
       state.inline_entities += 1;
       
-      auto has_spaces = 0 < state.whitespace.size();
-      if ( has_spaces ) {
+      if ( 0 < state.whitespace.size() ) {
         ops.push_back(interpreter::ops::render{ 
           interpreter::ops::kind::immediate, state.whitespace });
         state.whitespace.clear();
@@ -96,6 +103,16 @@ namespace boost { namespace mold { namespace format { namespace tildache
     // same as mustache, but working with tildache nodes
     result_type operator()(const ast::mustache_section &sec) const
     {
+      interpreter::ops::op_list ops;
+
+      /*
+      if ( 0 < state.whitespace.size() ) {
+        ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::immediate, state.whitespace });
+        state.whitespace.clear();
+      }
+      */
+      
       // Counting section begin directive.
       state.inline_directives += 1;
       
@@ -107,7 +124,8 @@ namespace boost { namespace mold { namespace format { namespace tildache
       // Decreasing section end directive.
       state.inline_directives += 1;
       
-      return interpreter::ops::switch_context{ sec.name, sec.inverted, body };
+      ops.push_back(interpreter::ops::switch_context{ sec.name, sec.inverted, body });
+      return ops;
     }
 
     result_type operator()(const ast::tild_section &sec) const

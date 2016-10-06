@@ -138,14 +138,14 @@ namespace boost { namespace mold { namespace format { namespace mustache
       if ( has_spaces ) {
         ops.push_back(interpreter::ops::load{
           interpreter::ops::kind::immediate,
-          { state.whitespace }, false
+          state.whitespace, 0, false
         });
         state.whitespace.clear();
       }
 
-      ops.push_back(interpreter::ops::load{ 
+      ops.push_back(interpreter::ops::load{
         interpreter::ops::kind::variable,
-        var.name, has_spaces
+        var.name, 0, has_spaces
       });
       
       if (var.unescaped) {

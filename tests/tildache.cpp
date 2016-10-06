@@ -43,6 +43,9 @@ static auto TILDACHE_EXAMPLE = std::string
   {{~ "1".."3" }} <- 123
   {{~ "1".."4" : _ }} <- 123
   {{#Members}}{{Name}}{{~ !last : {, }}}{{/Members}}
+  {{#Members}}
+  {{Name}}
+  {{/Members}}
   {{~ "1".."3" ~}}
   Item #{{a}}{{~_}}
   {{~}}
@@ -79,6 +82,9 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   123 <- 123
   123 <- 123
   Foo, Bar, Foobar
+  Foo
+  Bar
+  Foobar
   Item #1
   Item #2
   Item #3
