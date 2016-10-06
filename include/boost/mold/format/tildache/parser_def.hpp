@@ -133,7 +133,6 @@ namespace boost { namespace mold { namespace format { namespace tildache
       >> node_list     [( [](auto &c){ _val(c).nodes = _attr(c); } )]
       >> mustache::parser::section_end   [ mustache::parser::see_tag ]
       ;
-      ;
 
     auto const infix_expr_def =
       logical_expr

@@ -24,6 +24,7 @@ namespace boost { namespace mold { namespace interpreter
   using undefined_behavior = std::runtime_error;
   using exceeds_max_range = std::runtime_error;
   using unexpected_object_kind = std::runtime_error;
+  using unexpected_operation = std::runtime_error;
 
   namespace details
   {
@@ -291,6 +292,8 @@ namespace boost { namespace mold { namespace interpreter
             machine.top() = rhs;
           }
           return;
+
+        default: break;
         }
         
         assert(false && "unhandled binary operation");
@@ -383,6 +386,9 @@ namespace boost { namespace mold { namespace interpreter
         case ops::binary::test_or:
           machine.top() = to_string(!lhs.empty() || !rhs.empty());
           return true;
+
+        default:
+          break; //throw unexpected_operation("unexpected operation");
         }
         return false;
       }
@@ -408,6 +414,9 @@ namespace boost { namespace mold { namespace interpreter
             machine.top() = to_string(lhs / rhs);
           }
           return true;
+
+        default:
+          break; //throw unexpected_operation("unexpected operation");
         }
         return false;
       }

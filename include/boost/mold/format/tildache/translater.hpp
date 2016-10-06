@@ -95,6 +95,9 @@ namespace boost { namespace mold { namespace format { namespace tildache
             get_binary_op(operation.op),
           };
           break;
+
+        default:
+          return interpreter::ops::op{ /* undefined*/ };
         }
       }
       return operand;
@@ -206,6 +209,8 @@ namespace boost { namespace mold { namespace format { namespace tildache
           boost::apply_visitor(*this, op.oper),
           interpreter::ops::unary::test_negative,
         };
+        
+      default: break;
       }
       return interpreter::ops::op{ /* undefined */ };
     }
@@ -246,6 +251,7 @@ namespace boost { namespace mold { namespace format { namespace tildache
       case ast::op_or: return interpreter::ops::binary::test_or;
       case ast::op_range: return interpreter::ops::binary::range;
       case ast::op_sel: return interpreter::ops::binary::select;
+      default: break;
       }
       assert(false && "undefined binary operation");
     }
