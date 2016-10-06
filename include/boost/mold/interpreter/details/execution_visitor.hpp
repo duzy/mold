@@ -186,7 +186,7 @@ namespace boost { namespace mold { namespace interpreter
           success = pos == 0;
           break;
         case limit::max():
-          success = pos == machine.get_cursor_stop();
+          success = pos == machine.get_cursor_stop()-1;
           break;
         }
         machine.push(success ? "true" : "");
