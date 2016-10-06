@@ -70,6 +70,7 @@ namespace boost { namespace mold { namespace interpreter
       bool render_stack() const
       {
         for (auto &s : stack.top()) stream << s;
+        return !stack.top().empty();
       }
       
       void clear_memory()
