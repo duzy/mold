@@ -1,17 +1,17 @@
 /**
- *  \file boost/mold/format/tildache/translater.hpp
+ *  \file boost/mold/domain/tildache/translater.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_FORMAT_TILDACHE_TRANSLATER_HPP_
-#define _BOOST_MOLD_FORMAT_TILDACHE_TRANSLATER_HPP_ 1
-# include <boost/mold/format/mustache/translater.hpp>
-# include <boost/mold/format/tildache/ast.hpp>
+#ifndef _BOOST_MOLD_DOMAIN_TILDACHE_TRANSLATER_HPP_
+#define _BOOST_MOLD_DOMAIN_TILDACHE_TRANSLATER_HPP_ 1
+# include <boost/mold/domain/mustache/translater.hpp>
+# include <boost/mold/domain/tildache/ast.hpp>
 # include <limits>
-namespace boost { namespace mold { namespace format { namespace tildache
+namespace boost { namespace mold { namespace domain { namespace tildache
 {
   struct translation_visitor : mustache::translation_visitor
   {
@@ -258,5 +258,5 @@ namespace boost { namespace mold { namespace format { namespace tildache
   using translater = details::basic_translater<
     mustache::translation_state, translation_visitor>;
 
-}}}} // namespace boost::mold::format::tildache
-#endif//_BOOST_MOLD_FORMAT_TILDACHE_TRANSLATER_HPP_
+}}}} // namespace boost::mold::domain::tildache
+#endif//_BOOST_MOLD_DOMAIN_TILDACHE_TRANSLATER_HPP_

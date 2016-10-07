@@ -1,16 +1,16 @@
 /**
- *  \file boost/mold/format/tildache/ast.hpp
+ *  \file boost/mold/domain/tildache/ast.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_FORMAT_TILDACHE_AST_HPP_
-#define _BOOST_MOLD_FORMAT_TILDACHE_AST_HPP_ 1
-# include <boost/mold/format/mustache/ast.hpp>
+#ifndef _BOOST_MOLD_DOMAIN_TILDACHE_AST_HPP_
+#define _BOOST_MOLD_DOMAIN_TILDACHE_AST_HPP_ 1
+# include <boost/mold/domain/mustache/ast.hpp>
 # include <list>
-namespace boost { namespace mold { namespace format { namespace tildache { namespace ast
+namespace boost { namespace mold { namespace domain { namespace tildache { namespace ast
 {
   using mustache_node = mustache::ast::node;
 
@@ -154,35 +154,35 @@ namespace boost { namespace mold { namespace format { namespace tildache { names
   inline node::node(mustache_section const & rhs) : base_type(rhs) {}
   inline node::node(tild_section const & rhs) : base_type(rhs) {}
   
-}}}}} // namespace boost::mold::format::tildache::ast
+}}}}} // namespace boost::mold::domain::tildache::ast
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::tildache::ast::unary,
-   (boost::mold::format::tildache::ast::optoken, op)
-   (boost::mold::format::tildache::ast::operand, oper)
+   boost::mold::domain::tildache::ast::unary,
+   (boost::mold::domain::tildache::ast::optoken, op)
+   (boost::mold::domain::tildache::ast::operand, oper)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::tildache::ast::operation,
-   (boost::mold::format::tildache::ast::optoken, op)
-   (boost::mold::format::tildache::ast::operand, oper)
+   boost::mold::domain::tildache::ast::operation,
+   (boost::mold::domain::tildache::ast::optoken, op)
+   (boost::mold::domain::tildache::ast::operand, oper)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::tildache::ast::expression,
-   (boost::mold::format::tildache::ast::operand, first)
-   (boost::mold::format::tildache::ast::operations, rest)
+   boost::mold::domain::tildache::ast::expression,
+   (boost::mold::domain::tildache::ast::operand, first)
+   (boost::mold::domain::tildache::ast::operations, rest)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::tildache::ast::tild,
-   (boost::mold::format::tildache::ast::expression, expr)
+   boost::mold::domain::tildache::ast::tild,
+   (boost::mold::domain::tildache::ast::expression, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::tildache::ast::tild_section,
-   (boost::mold::format::tildache::ast::expression, expr)
-   (boost::mold::format::tildache::ast::node_list, nodes)
+   boost::mold::domain::tildache::ast::tild_section,
+   (boost::mold::domain::tildache::ast::expression, expr)
+   (boost::mold::domain::tildache::ast::node_list, nodes)
 )
 
-#endif//_BOOST_MOLD_FORMAT_MUSTACHE_AST_HPP_
+#endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_

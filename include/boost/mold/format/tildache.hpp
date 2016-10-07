@@ -8,16 +8,16 @@
  */ 
 #ifndef _BOOST_MOLD_FORMAT_TILDACHE_HPP_
 #define _BOOST_MOLD_FORMAT_TILDACHE_HPP_ 1
-# include <boost/mold/format/tildache/translater.hpp>
-# include <boost/mold/format/tildache/parser.hpp>
+# include <boost/mold/domain/tildache/translater.hpp>
+# include <boost/mold/domain/tildache/parser.hpp>
 namespace boost { namespace mold { namespace format
 {
 
-  using tildache_spec = spec<
-    tildache::translater,
-    tildache::parser::tildache_type,
-    tildache::ast::node_list,
-    tildache::spec>;
+  using tildache = spec<
+    domain::tildache::translater,
+    domain::tildache::parser::tildache_type,
+    domain::tildache::ast::node_list,
+    domain::tildache::spec>;
   
 }}} // namespace boost::mold::format
 #endif//_BOOST_MOLD_FORMAT_TILDACHE_HPP_

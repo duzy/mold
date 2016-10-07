@@ -1,16 +1,16 @@
 /**
- *  \file boost/mold/format/tildache/parser_def.hpp
+ *  \file boost/mold/domain/tildache/parser_def.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_FORMAT_TILDACHE_PARSER_DEF_HPP_
-#define _BOOST_MOLD_FORMAT_TILDACHE_PARSER_DEF_HPP_ 1
-#include <boost/mold/format/tildache/parser.hpp>
-#include <boost/mold/format/mustache/parser_def.hpp>
-namespace boost { namespace mold { namespace format { namespace tildache
+#ifndef _BOOST_MOLD_DOMAIN_TILDACHE_PARSER_DEF_HPP_
+#define _BOOST_MOLD_DOMAIN_TILDACHE_PARSER_DEF_HPP_ 1
+#include <boost/mold/domain/tildache/parser.hpp>
+#include <boost/mold/domain/mustache/parser_def.hpp>
+namespace boost { namespace mold { namespace domain { namespace tildache
 {
   namespace parser
   {
@@ -289,5 +289,5 @@ namespace boost { namespace mold { namespace format { namespace tildache
     return parser::spec;
   }
 
-}}}} // namespace boost::mold::format::mustache
-#endif//_BOOST_MOLD_FORMAT_MUSTACHE_PARSER_DEF_HPP_
+}}}} // namespace boost::mold::domain::mustache
+#endif//_BOOST_MOLD_DOMAIN_MUSTACHE_PARSER_DEF_HPP_

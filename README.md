@@ -24,6 +24,7 @@ Examples
 ```c++
 #include <boost/mold/mold.hpp>
 #include <boost/mold/format/mustache.hpp>
+#include <boost/mold/format/mustache.ipp>
 #include <iostream>
 
 static auto MUSTACHE_EXAMPLE = std::string
@@ -55,7 +56,7 @@ int main(int argc, char**argv)
   
   auto const &s = MUSTACHE_EXAMPLE;
   auto i = s.begin();
-  auto t = mold::load<mold::format::mustache_spec>(i, s.end());
+  auto t = mold::load<mold::format::mustache>(i, s.end());
   mold::generate(std::cout, t, context);
   return 0;
 }

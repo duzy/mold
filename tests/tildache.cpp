@@ -10,7 +10,7 @@
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mold/mold.hpp>
 #include <boost/mold/format/tildache.hpp>
-#include <boost/mold/format/tildache/parser_def.hpp>
+#include <boost/mold/format/tildache.ipp>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -110,7 +110,7 @@ int main(int argc, char**argv)
   std::stringstream ss;
   auto const &s = TILDACHE_EXAMPLE;
   auto i = s.begin();
-  auto t = mold::load<mold::format::tildache_spec>(i, s.end());
+  auto t = mold::load<mold::format::tildache>(i, s.end());
   mold::generate(ss, t, context);
 
   BOOST_TEST(i == s.end());

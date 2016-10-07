@@ -10,6 +10,7 @@
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mold/mold.hpp>
 #include <boost/mold/format/mustache.hpp>
+#include <boost/mold/format/mustache.ipp>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -89,7 +90,7 @@ int main(int argc, char**argv)
   std::stringstream ss;
   auto const &s = MUSTACHE_EXAMPLE;
   auto i = s.begin();
-  auto t = mold::load<mold::format::mustache_spec>(i, s.end());
+  auto t = mold::load<mold::format::mustache>(i, s.end());
   mold::generate(ss, t, context);
 
   BOOST_TEST(i == s.end());

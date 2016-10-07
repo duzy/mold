@@ -6,13 +6,13 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_FORMAT_MUSTACHE_AST_HPP_
-#define _BOOST_MOLD_FORMAT_MUSTACHE_AST_HPP_ 1
+#ifndef _BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_
+#define _BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_ 1
 # include <boost/spirit/home/x3/support/ast/variant.hpp>
 # include <boost/fusion/include/adapt_struct.hpp>
 # include <string>
 # include <vector>
-namespace boost { namespace mold { namespace format { namespace mustache { namespace ast
+namespace boost { namespace mold { namespace domain { namespace mustache { namespace ast
 {
   struct node_list;
 
@@ -94,19 +94,19 @@ namespace boost { namespace mold { namespace format { namespace mustache { names
 
   inline node::node(section const & rhs) : base_type(rhs) {}
   
-}}}}} // namespace boost::mold::format::mustache::ast
+}}}}} // namespace boost::mold::domain::mustache::ast
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::mustache::ast::variable,
+   boost::mold::domain::mustache::ast::variable,
    (bool, unescaped)
-   (boost::mold::format::mustache::ast::identifier, name)
+   (boost::mold::domain::mustache::ast::identifier, name)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::format::mustache::ast::section,
+   boost::mold::domain::mustache::ast::section,
    (bool, inverted)
-   (boost::mold::format::mustache::ast::identifier, name)
-   (boost::mold::format::mustache::ast::node_list, nodes)
+   (boost::mold::domain::mustache::ast::identifier, name)
+   (boost::mold::domain::mustache::ast::node_list, nodes)
 )
 
-#endif//_BOOST_MOLD_FORMAT_MUSTACHE_AST_HPP_
+#endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_

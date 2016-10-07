@@ -8,16 +8,16 @@
  */ 
 #ifndef _BOOST_MOLD_FORMAT_MUSTACHE_HPP_
 #define _BOOST_MOLD_FORMAT_MUSTACHE_HPP_ 1
-# include <boost/mold/format/mustache/translater.hpp>
-# include <boost/mold/format/mustache/parser_def.hpp>
+# include <boost/mold/domain/mustache/translater.hpp>
+# include <boost/mold/domain/mustache/parser_def.hpp>
 namespace boost { namespace mold { namespace format
 {
 
-  using mustache_spec = spec<
-    mustache::translater,
-    mustache::parser::mustache_type,
-    mustache::ast::node_list,
-    mustache::spec>;
+  using mustache = domain::spec<
+    domain::mustache::translater,
+    domain::mustache::parser::mustache_type,
+    domain::mustache::ast::node_list,
+    domain::mustache::spec>;
   
 }}} // namespace boost::mold::format
 #endif//_BOOST_MOLD_FORMAT_MUSTACHE_HPP_

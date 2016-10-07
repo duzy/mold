@@ -1,17 +1,17 @@
 /**
- *  \file boost/mold/format/mustache/translater.hpp
+ *  \file boost/mold/domain/mustache/translater.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_
-#define _BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_ 1
-# include <boost/mold/format/details/basic_translater.hpp>
-# include <boost/mold/format/mustache/ast.hpp>
+#ifndef _BOOST_MOLD_DOMAIN_MUSTACHE_TRANSLATER_HPP_
+#define _BOOST_MOLD_DOMAIN_MUSTACHE_TRANSLATER_HPP_ 1
+# include <boost/mold/domain/details/basic_translater.hpp>
+# include <boost/mold/domain/mustache/ast.hpp>
 # include <boost/mold/edit/unescape_html.hpp>
-namespace boost { namespace mold { namespace format { namespace mustache
+namespace boost { namespace mold { namespace domain { namespace mustache
 {
 
   struct translation_state
@@ -187,5 +187,5 @@ namespace boost { namespace mold { namespace format { namespace mustache
   using translater = details::basic_translater<
     translation_state, translation_visitor>;
   
-}}}} // namespace boost::mold::format::mustache
-#endif//_BOOST_MOLD_FORMAT_MUSTACHE_TRANSLATER_HPP_
+}}}} // namespace boost::mold::domain::mustache
+#endif//_BOOST_MOLD_DOMAIN_MUSTACHE_TRANSLATER_HPP_
