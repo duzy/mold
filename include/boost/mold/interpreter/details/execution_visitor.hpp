@@ -150,10 +150,19 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(const ops::for_each &op) const
       {
+        unsigned i = 0;
         while (!machine.empty()) {
-          machine.reg(0) = machine.front();
+          auto &r0 = machine.reg(0);
+          r0 = machine.front();
           machine.unshift();
+          
+          // Skip if there's only one item and empty.
+          if (i == 0 && machine.empty() && r0.empty()) {
+            break;
+          }
+          
           boost::apply_visitor(*this, op.body);
+          i = 0;
         }
       }
 
