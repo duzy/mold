@@ -18,6 +18,13 @@ namespace boost { namespace mold
   {
     return interpreter::compile<Format>(begin, end);
   }
+
+  template <typename Format, typename Raw>
+  template_data load(const Raw &s)
+  {
+    auto i = s.begin();
+    return interpreter::compile<Format>(i, s.end());
+  }
   
 }} // namespace boost::mold
 
