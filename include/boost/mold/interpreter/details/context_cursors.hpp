@@ -12,42 +12,29 @@
 namespace boost { namespace mold { namespace interpreter { namespace details
 {
 
-  template<typename Iterator, typename Base, typename Derived>
-  struct cursor : Base
+  template<typename Iterator, typename Interface>
+  struct context_cursor : Interface
   {
-    Iterator cur, end;
-    virtual const value *init(const array *a) override
+    Iterator beg, cur, end;
+    const value *init(Iterator a, Iterator b) /*final*/
     {
-      auto that = static_cast<Derived*>(this);
-      cur = that->begin(a);
-      end = that->end(a);
-      return &(*cur);
-    }
-    virtual bool is_valid() const override
-    {
-      return cur != end;
+      beg = cur = a, end = b;
+      return Interface::get(cur);
     }
     virtual const value *next() override
     {
       if (cur != end && ++cur != end) {
-        return &( *cur );
+        return Interface::get(cur);
       }
       return nullptr;
     }
-  };
-  
-  template<typename Base>
-  struct context_cursor : cursor<array::const_iterator, Base, context_cursor<Base>>
-  {
-    auto begin(const array *a) { return a->begin(); }
-    auto end(const array *a) { return a->end(); }
-  };
-
-  template<typename Base>
-  struct context_reverse_cursor : cursor<array::const_reverse_iterator, Base, context_reverse_cursor<Base>>
-  {
-    auto begin(const array *a) { return a->rbegin(); }
-    auto end(const array *a) { return a->rend(); }
+    virtual bool is_valid() const override { return cur != end; }
+    virtual bool is_first() const override { return cur == beg; }
+    virtual bool is_last() const override 
+    {
+      auto i = cur; ++i;
+      return cur != end && i == end; 
+    }
   };
       
 }}}} // namespace boost::mold::interpreter::details

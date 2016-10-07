@@ -19,27 +19,22 @@ namespace boost { namespace mold { namespace interpreter
   {
     struct cursor_interface
     {
-      virtual const value *init(const array *a) = 0;
-      virtual bool is_valid() const = 0;
       virtual const value *next() = 0;
+      virtual bool is_valid() const = 0;
+      virtual bool is_first() const = 0;
+      virtual bool is_last() const = 0;
       virtual ~cursor_interface() {}
+      const value *get(array::const_reverse_iterator i) { return &(*i); }
+      const value *get(array::const_iterator i) { return &(*i); }
+      const value *get(object::const_reverse_iterator i) { return &i->second; }
+      const value *get(object::const_iterator i) { return &i->second; }
     };
-      
+
     struct local final
     {
       const value *context = nullptr;
       cursor_interface *cursor = nullptr;
-      unsigned position = 0, stop = 0;
-
-      void init(const array *a)
-      {
-        if (cursor) {
-          context = cursor->init(a);
-          position = 0;
-          stop = a->size();
-        }
-      }
-
+      unsigned position = 0;
       bool forward()
       {
         if ( cursor && (context = cursor->next()) ) {
@@ -47,6 +42,43 @@ namespace boost { namespace mold { namespace interpreter
           return true;
         }
         return false;
+      }
+    };
+
+    template<template<typename Iterator, typename Interface> class Cursor>
+    struct local_initialize
+    {
+      template<typename Iterator>
+      using cursor_type = Cursor<Iterator, cursor_interface>;
+      
+      local &l;
+      bool reverse;
+      explicit local_initialize(local &l, bool b) : l(l), reverse(b)
+      {
+        assert(l.cursor == nullptr && "cursor already initialized");
+        if (l.context == nullptr) return;
+        boost::apply_visitor(*this, *l.context);
+      }
+      
+      void operator()(const nil_t &s) {}
+      void operator()(const std::string &s) {}
+      void operator()(const object &o) { this->create_cursor(o); }
+      void operator()(const array &a) { this->create_cursor(a); }
+
+      template<typename T>
+      void create_cursor(const T &v)
+      {
+        if (reverse) {
+          using ct = cursor_type<typename T::const_reverse_iterator>;
+          std::unique_ptr<ct> cursor(new ct());
+          l.context = cursor->init(v.rbegin(), v.rend());
+          l.cursor = cursor.release();
+        } else {
+          using ct = cursor_type<typename T::const_iterator>;
+          std::unique_ptr<ct> cursor(new ct());
+          l.context = cursor->init(v.begin(), v.end());
+          l.cursor = cursor.release();
+        }
       }
     };
 
@@ -160,14 +192,21 @@ namespace boost { namespace mold { namespace interpreter
         return find_var(name) != nullptr;
       }
 
-      unsigned int get_cursor_position() const
+      bool get_cursor_position() const
       {
         return lookup.back().position;
       }
-
-      unsigned int get_cursor_stop() const
+      
+      bool is_cursor_first() const
       {
-        return lookup.back().stop;
+        auto &top = lookup.back();
+        return top.cursor && top.cursor->is_first();
+      }
+
+      bool is_cursor_last() const
+      {
+        auto &top = lookup.back();
+        return top.cursor && top.cursor->is_last();
       }
 
       void new_stack() { stack.push(std::list<std::string>{}); }
@@ -196,14 +235,17 @@ namespace boost { namespace mold { namespace interpreter
       
       std::string &reg(unsigned n) { return regs[0]; }
 
-      template<template<typename Base> class Cursor>
+      template<template<typename Iterator, typename Interface> class Cursor>
       struct scope
       {
         execution_machine &m;
         local &lookup;
-        scope(execution_machine &m, const std::string &name)
-          : m(m), lookup(m.new_lookup(name, std::unique_ptr<cursor_interface>(new Cursor<cursor_interface>())))
+        
+        scope(execution_machine &m, const std::string &name, bool reverse)
+          : m(m), lookup(m.new_lookup(name))
         {
+          local_initialize<Cursor> init(lookup, reverse);
+          (void) init;
         }
         
         ~scope()
@@ -236,27 +278,11 @@ namespace boost { namespace mold { namespace interpreter
       std::vector<std::string> regs;
       std::string memory;
 
-      local &new_lookup(const std::string &name, std::unique_ptr<cursor_interface> cursor)
+      local &new_lookup(const std::string &name)
       {
-        auto current = lookup.back().context;
-
         // Create new lookup.
-        lookup.push_back({ nullptr, cursor.release() });
-        
-        auto &top = lookup.back();
-        
-        if ( auto o = boost::get<object>(current) ) {
-          auto it = o->find(name);
-          if ( it != o->end() ) {
-            if ( auto a = boost::get<array>(&it->second) ) {
-              top.init(a);
-            } else {
-              top.context = &it->second; // object or scalar
-            }
-          }
-        }
-        
-        return top;
+        lookup.push_back({ find_var(name) });
+        return lookup.back();
       }
 
       void pop_lookup() { lookup.pop_back(); }

@@ -170,24 +170,23 @@ namespace boost { namespace mold { namespace interpreter
       {
         //std::clog << "switch_context: " << op.name << ", " << op.inverted << std::endl;
 
-        if (op.inverted) {
-          reverse_iterate_context(op.name, op.body);
-        } else {
-          iterate_context(op.name, op.body);
+        typename Machine::template scope<details::context_cursor>
+          scope(machine, op.name, op.inverted);
+        if (scope.is_valid()) {
+          do { boost::apply_visitor(*this, op.body); } while (scope.next());
         }
       }
 
       void operator()(const ops::test_cursor &op) const
       {
         using limit = std::numeric_limits<decltype(ops::test_cursor::pos)>;
-        auto pos = machine.get_cursor_position();
         auto success = false;
         switch (op.pos) {
         case limit::min():
-          success = pos == 0;
+          success = machine.is_cursor_first();
           break;
         case limit::max():
-          success = pos == machine.get_cursor_stop()-1;
+          success = machine.is_cursor_last();
           break;
         }
         machine.push(success ? "true" : "");
@@ -301,28 +300,6 @@ namespace boost { namespace mold { namespace interpreter
 
     private:
       Machine &machine;
-
-      void reverse_iterate_context(const std::string &name, const ops::op &body) const
-      {
-        typename Machine::template scope<details::context_reverse_cursor>
-          scope(machine, name);
-        iterate_scope(scope, body);
-      }
-      
-      void iterate_context(const std::string &name, const ops::op &body) const
-      {
-        typename Machine::template scope<details::context_cursor>
-          scope(machine, name);
-        iterate_scope(scope, body);
-      }
-
-      template<typename Scope>
-      void iterate_scope(Scope &scope, const ops::op &body) const
-      {
-        if (scope.is_valid()) {
-          do { boost::apply_visitor(*this, body); } while (scope.next());
-        }
-      }
 
       template<typename NumType, typename String>
       static NumType parse_num(const String &s)
