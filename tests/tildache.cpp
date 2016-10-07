@@ -10,6 +10,7 @@
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mold/mold.hpp>
 #include <boost/mold/format/tildache.hpp>
+#include <boost/mold/format/tildache/parser_def.hpp>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -81,7 +82,7 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   true <- true
   123 <- 123
   123 <- 123
-  Foo, Bar, Foobar
+  Foo,   Bar,   Foobar
   Foo
   Bar
   Foobar
@@ -89,7 +90,6 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   Item #2
   Item #3
   -
-  
   )***" + 4
 };//";
 
