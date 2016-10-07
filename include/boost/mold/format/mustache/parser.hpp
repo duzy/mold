@@ -25,8 +25,8 @@ namespace boost { namespace mold { namespace format { namespace mustache
   
 }}}} // namespace boost::mold::format::mustache
 
-#define BOOST_MOLD_MUSTACHE_INSTANTIATE(iterator_type, context_type)    \
+#define BOOST_MOLD_MUSTACHE_INSTANTIATE(iterator_type)    \
   namespace boost { namespace mold { namespace format { namespace mustache { namespace parser \
-  { BOOST_SPIRIT_INSTANTIATE(mustache_type, iterator_type, context_type) }}}}}
+  { BOOST_SPIRIT_INSTANTIATE(mustache_type, iterator_type, mold::value) }}}}}
 
 #endif//_BOOST_MOLD_FORMAT_MUSTACHE_PARSER_HPP_

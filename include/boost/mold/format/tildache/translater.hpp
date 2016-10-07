@@ -215,13 +215,6 @@ namespace boost { namespace mold { namespace format { namespace tildache
       return interpreter::ops::op{ /* undefined */ };
     }
 
-    result_type operator()(const ast::identifier &id) const
-    {
-      return interpreter::ops::load{
-        interpreter::ops::kind::variable, {id}, false
-      };
-    }
-
     result_type operator()(const ast::emit_text &text) const
     {
       return interpreter::ops::render{
@@ -233,6 +226,11 @@ namespace boost { namespace mold { namespace format { namespace tildache
       return interpreter::ops::push{ interpreter::ops::kind::immediate, s };
     }
 
+    result_type operator()(const ast::identifier &id) const
+    {
+      return interpreter::ops::push{ interpreter::ops::kind::variable, id };
+    }
+    
   private:
     static interpreter::ops::binary get_binary_op(ast::optoken op)
     {

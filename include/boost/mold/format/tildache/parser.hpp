@@ -25,8 +25,8 @@ namespace boost { namespace mold { namespace format { namespace tildache
   
 }}}} // namespace boost::mold::format::tildache
 
-#define BOOST_MOLD_TILDACHE_INSTANTIATE(iterator_type, context_type)    \
+#define BOOST_MOLD_TILDACHE_INSTANTIATE(iterator_type)    \
   namespace boost { namespace mold { namespace format { namespace tildache { namespace parser \
-  { BOOST_SPIRIT_INSTANTIATE(tildache_type, iterator_type, context_type) }}}}}
+  { BOOST_SPIRIT_INSTANTIATE(tildache_type, iterator_type, mold::value) }}}}}
 
 #endif//_BOOST_MOLD_FORMAT_TILDACHE_PARSER_HPP_
