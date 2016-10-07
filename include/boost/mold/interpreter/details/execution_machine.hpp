@@ -12,28 +12,72 @@
 # include <boost/mold/value.hpp>
 # include <stack>
 # include <list>
+# include <iostream>
 namespace boost { namespace mold { namespace interpreter
 {
   namespace details
   {
+    struct cursor_interface
+    {
+      virtual const value *init(const array *a) = 0;
+      virtual bool is_valid() const = 0;
+      virtual const value *next() = 0;
+      virtual ~cursor_interface() {}
+    };
+      
+    struct local final
+    {
+      const value *context = nullptr;
+      cursor_interface *cursor = nullptr;
+      unsigned position = 0, stop = 0;
+
+      void init(const array *a)
+      {
+        if (cursor) {
+          context = cursor->init(a);
+          position = 0;
+          stop = a->size();
+        }
+      }
+
+      bool forward()
+      {
+        if ( cursor && (context = cursor->next()) ) {
+          position += 1;
+          return true;
+        }
+        return false;
+      }
+    };
+
     template <typename Stream>
     struct execution_machine
     {
       execution_machine(Stream &stream, const value &v)
         : stream(stream)
-        , context(v)
-        , current(&context)
+        , root_context(v)
+        , lookup({{ &root_context }})
       {
         regs.resize(8);
       }
 
+      const value *find_var(const std::string &name) const
+      {
+        for (auto lit = lookup.rbegin(); lit != lookup.rend(); ++lit) {
+          if ( auto o = boost::get<object>(lit->context) ) {
+            auto it = o->find(name);
+            if ( it != o->end() ) {
+              return &it->second;
+            }
+          }
+        }
+        return nullptr;
+      }
+      
       const std::string *get_var_text(const std::string &name) const
       {
-        if ( auto o = boost::get<object>(current) ) {
-          auto it = o->find(name);
-          if ( it != o->end() ) {
-            return boost::get<std::string>(&it->second);
-          }
+        if ( auto v = find_var(name) ) {
+          return boost::get<std::string>(v);
         }
         return nullptr;
       }
@@ -113,18 +157,17 @@ namespace boost { namespace mold { namespace interpreter
 
       bool has(const std::string &name)
       {
-        auto o = boost::get<object>(current);
-        return o && o->find(name) != o->end();
+        return find_var(name) != nullptr;
       }
 
       unsigned int get_cursor_position() const
       {
-        return cursor_position;
+        return lookup.back().position;
       }
 
       unsigned int get_cursor_stop() const
       {
-        return cursor_stop;
+        return lookup.back().stop;
       }
 
       void new_stack() { stack.push(std::list<std::string>{}); }
@@ -152,62 +195,32 @@ namespace boost { namespace mold { namespace interpreter
       auto empty() const { return stack.top().empty(); }
       
       std::string &reg(unsigned n) { return regs[0]; }
-      
-      template <typename Cursor>
+
+      template<template<typename Base> class Cursor>
       struct scope
       {
-        const value *saved;
         execution_machine &m;
-        Cursor cursor;
+        local &lookup;
         scope(execution_machine &m, const std::string &name)
-          : saved(m.current), m(m), cursor()
+          : m(m), lookup(m.new_lookup(name, std::unique_ptr<cursor_interface>(new Cursor<cursor_interface>())))
         {
-          m.cursor_position = m.cursor_stop = 0;
-          if ( name == "." ) {
-            // TODO: ...
-            return;
-          }
-          if ( auto o = boost::get<object>(m.current) ) {
-            auto it = o->find(name);
-            if ( it != o->end() ) {
-              if ( auto a = boost::get<array>(&it->second) ) {
-                if (!a->empty()) {
-                  m.current = cursor.init(a);
-                  m.cursor_position = 0;
-                  m.cursor_stop = a->size();
-                  // std::clog
-                  //   << "scope: enter: "
-                  //   << name << ", "
-                  //   << m.current << ", " << saved
-                  //   << std::endl;
-                }
-              }
-            }
-          }
         }
         
         ~scope()
         {
-          // std::clog
-          //   << "scope: exit: "
-          //   << m.current << ", " << saved
-          //   << std::endl;
-          m.current = saved;
+          delete lookup.cursor;
+          lookup.cursor = nullptr;
+          m.pop_lookup();
         }
 
         bool is_valid() const
         {
-          return cursor.is_valid();
+          return lookup.cursor && lookup.cursor->is_valid();
         }
         
         bool next()
         {
-          if ( auto c = cursor.next() ) {
-            m.cursor_position += 1;
-            m.current = c;
-            return true;
-          }
-          return false;
+          return lookup.forward();
         }
         
       private:
@@ -217,13 +230,36 @@ namespace boost { namespace mold { namespace interpreter
 
     private:
       Stream &stream;
-      const value context;
-      const value*current;
-      unsigned int cursor_position;
-      unsigned int cursor_stop;
-      std::string memory;
-      std::vector<std::string> regs;
+      const value root_context;
+      std::list<local> lookup;
       std::stack<std::list<std::string>> stack;
+      std::vector<std::string> regs;
+      std::string memory;
+
+      local &new_lookup(const std::string &name, std::unique_ptr<cursor_interface> cursor)
+      {
+        auto current = lookup.back().context;
+
+        // Create new lookup.
+        lookup.push_back({ nullptr, cursor.release() });
+        
+        auto &top = lookup.back();
+        
+        if ( auto o = boost::get<object>(current) ) {
+          auto it = o->find(name);
+          if ( it != o->end() ) {
+            if ( auto a = boost::get<array>(&it->second) ) {
+              top.init(a);
+            } else {
+              top.context = &it->second; // object or scalar
+            }
+          }
+        }
+        
+        return top;
+      }
+
+      void pop_lookup() { lookup.pop_back(); }
     };
   
   } // namespace details

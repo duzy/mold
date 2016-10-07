@@ -12,22 +12,22 @@
 namespace boost { namespace mold { namespace interpreter { namespace details
 {
 
-  template<typename Iterator, typename Derived>
-  struct cursor
+  template<typename Iterator, typename Base, typename Derived>
+  struct cursor : Base
   {
     Iterator cur, end;
-    const value *init(const array *a)
+    virtual const value *init(const array *a) override
     {
       auto that = static_cast<Derived*>(this);
       cur = that->begin(a);
       end = that->end(a);
       return &(*cur);
     }
-    bool is_valid() const
+    virtual bool is_valid() const override
     {
       return cur != end;
     }
-    const value *next()
+    virtual const value *next() override
     {
       if (cur != end && ++cur != end) {
         return &( *cur );
@@ -35,14 +35,16 @@ namespace boost { namespace mold { namespace interpreter { namespace details
       return nullptr;
     }
   };
-      
-  struct context_cursor : cursor<array::const_iterator, context_cursor>
+  
+  template<typename Base>
+  struct context_cursor : cursor<array::const_iterator, Base, context_cursor<Base>>
   {
     auto begin(const array *a) { return a->begin(); }
     auto end(const array *a) { return a->end(); }
   };
 
-  struct context_reverse_cursor : cursor<array::const_reverse_iterator, context_reverse_cursor>
+  template<typename Base>
+  struct context_reverse_cursor : cursor<array::const_reverse_iterator, Base, context_reverse_cursor<Base>>
   {
     auto begin(const array *a) { return a->rbegin(); }
     auto end(const array *a) { return a->rend(); }
