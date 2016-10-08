@@ -11,6 +11,7 @@
 # include <boost/mold/domain/mustache/translater.hpp>
 # include <boost/mold/domain/tildache/ast.hpp>
 # include <limits>
+# include <iostream>
 namespace boost { namespace mold { namespace domain { namespace tildache
 {
   struct translation_visitor : mustache::translation_visitor
@@ -48,6 +49,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
 
     result_type operator()(const ast::statement &n) const
     {
+      std::clog << __PRETTY_FUNCTION__ << std::endl;
       return interpreter::ops::op{};
     }
 
@@ -97,6 +99,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
           break;
 
         default:
+          std::clog << __PRETTY_FUNCTION__ << std::endl;
           return interpreter::ops::op{ /* undefined*/ };
         }
       }
@@ -172,6 +175,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       case ast::predictor::last:
         return interpreter::ops::test_cursor{ limit::max() };
       }
+      std::clog << __PRETTY_FUNCTION__ << std::endl;
       return interpreter::ops::op{ /* undefined */ };
     }
 
@@ -179,15 +183,9 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     {
       switch (place) {
       case ast::placeholder::underscore:
-#if 0
-        return interpreter::ops::op_list{
-          interpreter::ops::load{ interpreter::ops::kind::reg, "", 0, false },
-          interpreter::ops::push{ interpreter::ops::kind::memory },
-        };
-#else
         return interpreter::ops::push{ interpreter::ops::kind::reg, "", 0 };
-#endif
       }
+      std::clog << __PRETTY_FUNCTION__ << std::endl;
       return interpreter::ops::op{ /* undefined */ };
     }
 
@@ -212,6 +210,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         
       default: break;
       }
+      std::clog << __PRETTY_FUNCTION__ << std::endl;
       return interpreter::ops::op{ /* undefined */ };
     }
 
