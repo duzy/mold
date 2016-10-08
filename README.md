@@ -62,9 +62,7 @@ int main(int argc, char**argv)
     { "Story", "Blah blah blah, here goes the long story..." },
   };
   
-  auto const &s = MUSTACHE_EXAMPLE;
-  auto i = s.begin();
-  auto t = mold::load<mold::format::mustache>(i, s.end());
+  auto t = mold::load<mold::format::mustache>(MUSTACHE_EXAMPLE);
   mold::generate(std::cout, t, context);
   return 0;
 }
