@@ -4,7 +4,11 @@
 
 The [mold][] engine has a stacked-based virtual machine implementation, it's
 execution is operating on text to generate text output to a stream or produce
-a value from the program.
+a value from the program. The goal of the virtual machine is operating text
+instead of fast computation.
+
+All domain languages are compiled into programs for the virtual machine. It's
+possible to support many advanced languages.
 
 Introduction
 ------------
