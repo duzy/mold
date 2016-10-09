@@ -1,11 +1,13 @@
 # mold
 
-**C++ Template Engine Library** is a header-only library supports multiple domain languages.
+Mold is a **C++ Template Engine Library**, a header-only library supports
+multiple domain languages.
 
 The [mold][] engine has a stacked-based virtual machine implementation, it's
 execution is operating on text to generate text output to a stream or produce
-a value from the program. The goal of the virtual machine is operating text
-instead of fast computation.
+a value from the program. The goal of the virtual machine is text operations
+instead of fast computation although it's still capable of doing mathmatical
+and logical computation.
 
 All domain languages are compiled into programs for the virtual machine. It's
 possible to support many advanced languages.
