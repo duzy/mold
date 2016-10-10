@@ -37,9 +37,11 @@ Examples
 #include <boost/mold/format/mustache.ipp>
 #include <iostream>
 
-static auto MUSTACHE_EXAMPLE = std::string
+namespace mold = boost::mold;
+
+static std::string MUSTACHE_EXAMPLE
 {
-  R"***(//"
+u8R"***(//"
   
   Dear {{FirstName}},
 
@@ -50,22 +52,20 @@ static auto MUSTACHE_EXAMPLE = std::string
   Best Regards,
   {{MyName}}
   
-  )***" + 4
+)***" + 4
 };//";
-
-namespace mold = boost::mold;
   
 int main(int argc, char**argv)
 {
-  mold::object context
+  mold::object feed
   {
     { "FirstName", "Tony" },
     { "MyName", "Mold" },
-    { "Story", "Blah blah blah, here goes the long story..." },
+    { "Story", "Blah blah blah... Here goes a very long story..." },
   };
   
   auto t = mold::load<mold::format::mustache>(MUSTACHE_EXAMPLE);
-  mold::generate(std::cout, t, context);
+  mold::generate(std::cout, t, feed);
   return 0;
 }
 ```
@@ -78,7 +78,7 @@ Expected result on `std::cout`:
 
   It's been long time since we last met.
 
-  Blah blah blah, here goes the long story...
+  Blah blah blah... Here goes a very long story...
   
   Best Regards,
   Mold

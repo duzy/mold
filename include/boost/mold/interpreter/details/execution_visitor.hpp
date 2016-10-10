@@ -341,7 +341,7 @@ namespace boost { namespace mold { namespace interpreter
       static std::string to_string(bool v)
       {
         std::ostringstream ss;
-        ss << (v ? "true" : "false");
+        ss << (v ? "true" : "");
         return ss.str();
       }
 
