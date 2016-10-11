@@ -55,6 +55,8 @@ namespace boost { namespace mold { namespace domain { namespace tildache
 
     result_type operator()(const ast::tild &t) const
     {
+      //std::clog << __PRETTY_FUNCTION__ << std::endl;
+
       interpreter::ops::op_list ops;
       
       state.inline_entities += 1;
@@ -66,9 +68,17 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       }
       
       ops.push_back(interpreter::ops::new_stack{});
-      ops.push_back((*this)(t.expr)); // construct new stack
-      ops.push_back(interpreter::ops::render{ 
-        interpreter::ops::kind::stack, "", 0, true });
+      
+      if (t.expr) {
+        ops.push_back((*this)(*t.expr)); // construct new stack
+        ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::stack, "", 0, true });
+      } else {
+        // {{~}} renders reg #0
+        ops.push_back(interpreter::ops::render{ 
+          interpreter::ops::kind::reg, "", 0, true });
+      }
+      
       ops.push_back(interpreter::ops::pop_stack{});
       return ops;
     }
@@ -98,6 +108,12 @@ namespace boost { namespace mold { namespace domain { namespace tildache
           };
           break;
 
+        case ast::op_push:
+          operand = interpreter::ops::op_list{
+            operand, boost::apply_visitor(*this, operation.oper),
+          };
+          break;
+          
         default:
           std::clog << __PRETTY_FUNCTION__ << std::endl;
           return interpreter::ops::op{ /* undefined*/ };
@@ -127,14 +143,38 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         body.push_back(boost::apply_visitor(*this, n));
       }
 
-      // Decreasing section end directive.
+      // Counting section end directive.
       state.inline_directives += 1;
       
       ops.push_back(interpreter::ops::switch_context{ sec.name, sec.inverted, body });
       return ops;
     }
 
-    result_type operator()(const ast::tild_section &sec) const
+    result_type operator()(const ast::tild_see_section &ts) const
+    {
+      interpreter::ops::op_list ops{ 
+        interpreter::ops::new_stack{},
+        (*this)(ts.init_case.expr), // construct new stack for test
+      };
+
+      for (auto &sec : ts.expr_cases) {
+        ops.push_back((*this)(sec, interpreter::ops::iterate_source::top_intersection));
+      }
+
+      if (ts.else_case) {
+        ops.push_back(interpreter::ops::if_then_else{
+          {}, (*this)(*ts.else_case) });
+      }
+      ops.push_back(interpreter::ops::pop_stack{});
+      return ops;
+    }
+
+    result_type operator()(const ast::tild_expr_case &sec) const
+    {
+      return (*this)(sec, interpreter::ops::iterate_source::top_stack);
+    }
+    
+    result_type operator()(const ast::tild_expr_case &sec, interpreter::ops::iterate_source source) const
     {
       // Counting section begin directive.
       state.inline_directives += 1;
@@ -149,14 +189,38 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         body.push_back(boost::apply_visitor(*this, n));
       }
 
-      // Decreasing section end directive.
+      // Counting section end directive.
       state.inline_directives += 1;
       
-      ops.push_back(interpreter::ops::for_each{ "~", body });
+      ops.push_back(interpreter::ops::for_each{ body, source });
       ops.push_back(interpreter::ops::pop_stack{});
       return ops;
     }
 
+    result_type operator()(const ast::tild_else_case &sec) const
+    {
+      if (!sec) return interpreter::ops::nop{};
+      
+      // Counting section begin directive.
+      state.inline_directives += 1;
+
+      interpreter::ops::op_list ops{ 
+        interpreter::ops::new_stack{},
+      };
+      
+      interpreter::ops::op_list body;
+      for (auto const &n : *sec) {
+        body.push_back(boost::apply_visitor(*this, n));
+      }
+
+      // Counting section end directive.
+      state.inline_directives += 1;
+      
+      ops.push_back(interpreter::ops::for_each{ body });
+      ops.push_back(interpreter::ops::pop_stack{});
+      return ops;
+    }
+    
     //
     // Expression Operands
     
@@ -252,6 +316,8 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       }
       assert(false && "undefined binary operation");
     }
+
+    
   }; // translation_visitor
 
   using translater = details::basic_translater<

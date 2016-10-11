@@ -46,9 +46,13 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     using node_list_type = x3::rule<struct node_list_class, ast::node_list>;
     using node_type = x3::rule<struct node_class, ast::node>;
     using tild_type = x3::rule<struct tild_class, ast::tild>;
-    using tild_section_type = x3::rule<struct tild_section_class, ast::tild_section>;
+    using tild_see_section_type = x3::rule<struct tild_see_section_class, ast::tild_see_section>;
+    using tild_init_case_type = x3::rule<struct tild_init_case_class, ast::tild_init_case>;
+    using tild_expr_case_type = x3::rule<struct tild_expr_case_class, ast::tild_expr_case>;
+    using tild_else_case_type = x3::rule<struct tild_else_case_class, ast::tild_else_case>;
     using mustache_section_type = x3::rule<struct mustache_section_class, ast::mustache_section>;
     using expression_type = x3::rule<struct expression_class, ast::expression>;
+    using list_expr_type = x3::rule<struct list_expr_class, ast::expression>;
     using infix_expr_type = x3::rule<struct infix_expr_class, ast::expression>;
     using equality_expr_type = x3::rule<struct equality_expr_class, ast::expression>;
     using relational_expr_type = x3::rule<struct relational_expr_class, ast::expression>;
@@ -64,11 +68,15 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     
     const tildache_type spec = "tildache";
     const tild_type tild = "tild";
-    const tild_section_type tild_section = "tild_section";
+    const tild_see_section_type tild_see_section = "tild_see_section";
+    const tild_init_case_type tild_init_case = "tild_init_case";
+    const tild_expr_case_type tild_expr_case = "tild_expr_case";
+    const tild_else_case_type tild_else_case = "tild_else_case";
     const mustache_section_type mustache_section = "mustache_section";
     const node_type node = "node";
     const node_list_type node_list = "node_list";
     const expression_type expression = "expression";
+    const list_expr_type list_expr = "list_expr";
     const infix_expr_type infix_expr = "infix_expr";
     const equality_expr_type equality_expr = "equality_expr";
     const relational_expr_type relational_expr = "relational_expr";
@@ -82,6 +90,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     const single_quoted_type single_quoted = "single_quoted";
     const double_quoted_type double_quoted = "double_quoted";
 
+    symbols<ast::optoken> list_op;
     symbols<ast::optoken> infix_op;
     symbols<ast::optoken> equality_op;
     symbols<ast::optoken> relational_op;
@@ -108,7 +117,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
 
     auto const node_def =
         tild
-      | tild_section
+      | tild_see_section
       | mustache_section
       | mustache::parser::node
       ;
@@ -118,15 +127,31 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       ;
 
     auto const tild_def =
-      confix(lit("{{") >> sk['~'], sk["}}"])[ expression ]
+      confix(lit("{{") >> sk['~'], sk["}}"])[ -expression ]
       ;
 
-    auto const tild_section_def =
+    auto const tild_see_section_def =
+      tild_init_case
+      >> +tild_expr_case
+      >> -tild_else_case
+      >> omit[sk[lit("{{") >> '~' >> "end" >> '~' >> "}}"]]
+      ;
+
+    auto const tild_init_case_def =
+      confix(lit("{{") >> sk[char_('~') >> "see"], sk['~'] >> "}}")[ expression ]
+      >> node_list
+      ;
+
+    auto const tild_expr_case_def =
       confix(lit("{{") >> sk['~'], sk['~'] >> "}}")[ expression ]
       >> node_list
-      >> omit[sk[lit("{{") >> '~' >> "}}"]]
       ;
-
+    
+    auto const tild_else_case_def =
+      omit[sk[lit("{{") >> '~' >> '~' >> "}}"]]
+      >> node_list
+      ;
+    
     auto const mustache_section_def =
       matches[&(lit("{{") >> '^')][( [](auto &c){ _val(c).inverted = _attr(c); } )]
       >> mustache::parser::section_begin [ mustache::parser::set_tag ]
@@ -134,6 +159,11 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       >> mustache::parser::section_end   [ mustache::parser::see_tag ]
       ;
 
+    auto const list_expr_def =
+      infix_expr 
+      >> *( sk[list_op] > infix_expr )
+      ;
+    
     auto const infix_expr_def =
       logical_expr
       >> *( sk[infix_op] > logical_expr )
@@ -196,7 +226,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       ;
 
     auto const expression_def = 
-      ss >> infix_expr
+      ss >> list_expr
       ;
     
     BOOST_SPIRIT_DEFINE(
@@ -204,8 +234,12 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         node,
         node_list,
         tild,
-        tild_section,
+        tild_see_section,
+        tild_init_case,
+        tild_expr_case,
+        tild_else_case,
         mustache_section,
+        list_expr,
         infix_expr,
         equality_expr,
         relational_expr,
@@ -227,6 +261,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       if (done) return;
       done = true;
 
+      list_op.add
+        (",", ast::op_push)
+        ;
+      
       infix_op.add
         (":", ast::op_sel)
         ("..", ast::op_range)
@@ -275,6 +313,8 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         ;
 
       keywords.add
+        ("see")
+        ("end")
         ("$")
         ;
     }

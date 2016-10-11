@@ -83,6 +83,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     op_or,
     op_range, // ..
     op_sel,   // :
+    op_push,  // ,
   };
 
   struct unary
@@ -105,9 +106,11 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     operations rest;
   };
 
+  using expression_opt = boost::optional<expression>;
+  
   struct tild
   {
-    expression expr;
+    expression_opt expr;
   };
   
   struct statement
@@ -116,14 +119,14 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
   };
 
   struct mustache_section;
-  struct tild_section;
+  struct tild_see_section;
   
   struct node : boost::spirit::x3::variant<
       mustache_node
     , tild
     , statement
     , boost::spirit::x3::forward_ast<mustache_section>
-    , boost::spirit::x3::forward_ast<tild_section>
+    , boost::spirit::x3::forward_ast<tild_see_section>
     >
   {
     node() : base_type() {}
@@ -131,10 +134,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     node(tild const & rhs) : base_type(rhs) {}
     node(statement const & rhs) : base_type(rhs) {}
     node(mustache_section const & rhs);
-    node(tild_section const & rhs);
+    node(tild_see_section const & rhs);
   };
 
-  struct node_list : std::vector<node> {};
+  using node_list = std::vector<node>;
 
   struct mustache_section
   {
@@ -143,16 +146,32 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     node_list nodes;
   };
 
-  struct tild_section
+  struct tild_init_case
+  {
+    expression expr;
+    node_list nodes; // ignored
+  };
+
+  struct tild_expr_case
   {
     expression expr;
     node_list nodes;
   };
   
+  using tild_expr_cases = std::list<tild_expr_case>;
+  using tild_else_case = boost::optional<node_list>;
+  
+  struct tild_see_section
+  {
+    tild_init_case  init_case;
+    tild_expr_cases expr_cases;
+    tild_else_case  else_case;
+  };
+  
   inline operand::operand(const unary &v) : base_type(v) {}
   inline operand::operand(const expression &v) : base_type(v) {}
   inline node::node(mustache_section const & rhs) : base_type(rhs) {}
-  inline node::node(tild_section const & rhs) : base_type(rhs) {}
+  inline node::node(tild_see_section const & rhs) : base_type(rhs) {}
   
 }}}}} // namespace boost::mold::domain::tildache::ast
 
@@ -176,13 +195,26 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
    boost::mold::domain::tildache::ast::tild,
-   (boost::mold::domain::tildache::ast::expression, expr)
+   (boost::mold::domain::tildache::ast::expression_opt, expr)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-   boost::mold::domain::tildache::ast::tild_section,
+   boost::mold::domain::tildache::ast::tild_init_case,
    (boost::mold::domain::tildache::ast::expression, expr)
    (boost::mold::domain::tildache::ast::node_list, nodes)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+   boost::mold::domain::tildache::ast::tild_expr_case,
+   (boost::mold::domain::tildache::ast::expression, expr)
+   (boost::mold::domain::tildache::ast::node_list, nodes)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+   boost::mold::domain::tildache::ast::tild_see_section,
+   (boost::mold::domain::tildache::ast::tild_init_case,  init_case)
+   (boost::mold::domain::tildache::ast::tild_expr_cases, expr_cases)
+   (boost::mold::domain::tildache::ast::tild_else_case,  else_case)
 )
 
 #endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_

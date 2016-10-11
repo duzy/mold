@@ -167,7 +167,7 @@ namespace boost { namespace mold { namespace domain { namespace mustache
         body.push_back(boost::apply_visitor(*this, n));
       }
 
-      // Decreasing section end directive.
+      // Counting section end directive.
       state.inline_directives += 1;
       
       return interpreter::ops::switch_context{ sec.name, sec.inverted, body };

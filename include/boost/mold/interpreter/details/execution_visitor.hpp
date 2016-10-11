@@ -13,10 +13,8 @@
 # include <boost/spirit/home/x3/numeric/int.hpp>
 # include <boost/spirit/home/x3/core/parse.hpp>
 # include <boost/spirit/home/x3/char/char_class.hpp>
-//# include <algorithm>
-//# include <cstdlib>
-//# include <cstdio>
-//# include <cctype>
+# include <algorithm>
+# include <iterator>
 # include <limits>
 # include <sstream>
 namespace boost { namespace mold { namespace interpreter
@@ -150,35 +148,53 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(const ops::for_each &op) const
       {
-        unsigned i = 0;
-        while (!machine.empty()) {
-          auto &r0 = machine.reg(0);
-          r0 = machine.front();
-          machine.unshift();
+        switch (op.source) {
+        case ops::iterate_source::top_stack: break;
+        case ops::iterate_source::top_intersection:
+          {
+            std::list<std::string> set;
+            auto t = machine.top_stack(); machine.pop_stack();
+            auto o = machine.top_stack();
+            t.sort(), o.sort();
+            std::set_intersection(t.begin(), t.end(), o.begin(), o.end(),
+              std::back_inserter(set));
+            machine.push_stack(set);
+          } break;
+        }
+        {
+          unsigned i = 0;
+          while (!machine.empty()) {
+            auto &r0 = machine.reg(0);
+            r0 = machine.front();
+            machine.unshift();
           
-          // Skip if there's only one item and empty.
-          if (i == 0 && machine.empty() && r0.empty()) {
-            break;
+            // Skip if there's only one item and empty.
+            if (i == 0 && machine.empty() && r0.empty()) {
+              break;
+            }
+          
+            boost::apply_visitor(*this, op.body);
+            i += 1;
           }
-          
-          boost::apply_visitor(*this, op.body);
-          i = 0;
         }
       }
 
       void operator()(const ops::if_then_else &op) const
       {
-        if (machine.has(op.value.name)) {
-          boost::apply_visitor(*this, op.body_then);
+        auto success = false;
+        for (auto &s : machine.top_stack()) if ((success = !s.empty())) break;
+        
+        if ( success ) {
+          if (!boost::get<ops::undefined>(&op.body_then))
+            boost::apply_visitor(*this, op.body_then);
         } else {
-          boost::apply_visitor(*this, op.body_else);
+          if (!boost::get<ops::undefined>(&op.body_then))
+            boost::apply_visitor(*this, op.body_else);
         }
       }
 
       void operator()(const ops::switch_context &op) const
       {
-        //std::clog << "switch_context: " << op.name << ", " << op.inverted << std::endl;
-
         typename Machine::template scope<details::context_cursor>
           scope(machine, op.name, op.inverted);
         if (scope.is_valid()) {

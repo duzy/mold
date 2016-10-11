@@ -47,9 +47,22 @@ static auto TILDACHE_EXAMPLE = std::string
   {{#Members}}
   {{Name}}
   {{/Members}}
-  {{~ "1".."3" ~}}
-  Item #{{a}}{{~_}}
-  {{~}}
+  {{~ see "1".."20" ~}}
+  {{~ "3".."8" ~}}
+  Item #{{a}}{{~}}
+  {{~ "7".."11" ~}}
+  Item #{{a}}{{~}}
+  {{~~}}
+  ................
+  {{~ end ~}}
+  {{~see "a","c"~}}
+  {{~"a"~}}
+  1.{{~}}
+  {{~"b"~}}
+  2.{{~}}
+  {{~"c"~}}
+  3.{{~}}
+  {{~end~}}
   -
   )***" + 4
 };//";
@@ -82,13 +95,23 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   true <- true
   123 <- 123
   123 <- 123
-  Foo,   Bar,   Foobar
+  Foo, Bar, Foobar
   Foo
   Bar
   Foobar
-  Item #1
-  Item #2
   Item #3
+  Item #4
+  Item #5
+  Item #6
+  Item #7
+  Item #8
+  Item #7
+  Item #8
+  Item #9
+  Item #10
+  Item #11
+  1.a
+  3.c
   -
   )***" + 4
 };//";
@@ -115,6 +138,11 @@ int main(int argc, char**argv)
 
   BOOST_TEST(i == s.end());
   BOOST_TEST(ss.str() == TILDACHE_EXAMPLE_EXPECT);
+
+  if (i != s.end()) {
+    std::cout << "========== failed at" << std::endl;
+    std::cout << std::string(i, s.end()) << std::endl;
+  }
 
 #if 1
   std::cout << "-------------------------" << std::endl;

@@ -209,7 +209,9 @@ namespace boost { namespace mold { namespace interpreter
         return top.cursor && top.cursor->is_last();
       }
 
+      std::list<std::string> &top_stack() { return stack.top(); }
       void new_stack() { stack.push(std::list<std::string>{}); }
+      void push_stack(const std::list<std::string> &s) { stack.push(s); }
       void pop_stack() { stack.pop(); }
       
       void clear_stack() { stack.top().clear(); }

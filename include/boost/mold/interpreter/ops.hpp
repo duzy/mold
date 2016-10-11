@@ -139,22 +139,20 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
     op(const op_list &l);
   };
 
-  struct condition
+  enum class iterate_source
   {
-    std::string name;
-    
-    // TODO: using expression
+    top_stack,
+    top_intersection,
   };
   
   struct for_each
   {
-    std::string name;
     op body;
+    iterate_source source = iterate_source::top_stack;
   };
 
   struct if_then_else
   {
-    condition value;
     op body_then;
     op body_else;
   };
