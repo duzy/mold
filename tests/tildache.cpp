@@ -68,6 +68,13 @@ static auto TILDACHE_EXAMPLE = std::string
   {{~~}}
   okay
   {{~end~}}
+  {{~each "a","b","c"~}}
+  {{~}}
+  {{~end~}}
+  {{~each ""~}}
+  {{~~}}
+  okay
+  {{~end~}}
   -
   )***" + 4
 };//";
@@ -117,6 +124,10 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   Item #11
   1.a
   3.c
+  okay
+  a
+  b
+  c
   okay
   -
   )***" + 4

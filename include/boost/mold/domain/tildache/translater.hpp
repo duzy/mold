@@ -183,6 +183,14 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       return ops;
     }
 
+    result_type operator()(const ast::tild_each_section &sec) const
+    {
+      interpreter::ops::op els;
+      if (sec.else_case) els = (*this)(*sec.else_case);
+      return (*this)(sec.expr_case, interpreter::ops::iterate_source::top_stack,
+                     els);
+    }
+    
     result_type operator()(const ast::tild_expr_case &sec, 
                            interpreter::ops::iterate_source source,
                            interpreter::ops::op body_else = {}) const
@@ -215,20 +223,13 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       // Counting section begin directive.
       state.inline_directives += 1;
 
-      interpreter::ops::op_list ops{ 
-        interpreter::ops::new_stack{},
-      };
-      
-      interpreter::ops::op_list body;
+      interpreter::ops::op_list ops;
       for (auto const &n : *sec) {
-        body.push_back(boost::apply_visitor(*this, n));
+        ops.push_back(boost::apply_visitor(*this, n));
       }
 
       // Counting section end directive.
       state.inline_directives += 1;
-      
-      ops.push_back(interpreter::ops::for_each{ body });
-      ops.push_back(interpreter::ops::pop_stack{});
       return ops;
     }
     

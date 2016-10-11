@@ -121,6 +121,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
   struct mustache_section;
   struct tild_see_section;
   struct tild_once_section;
+  struct tild_each_section;
   
   struct node : boost::spirit::x3::variant<
       mustache_node
@@ -129,6 +130,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     , boost::spirit::x3::forward_ast<mustache_section>
     , boost::spirit::x3::forward_ast<tild_see_section>
     , boost::spirit::x3::forward_ast<tild_once_section>
+    , boost::spirit::x3::forward_ast<tild_each_section>
     >
   {
     node() : base_type() {}
@@ -138,6 +140,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     node(mustache_section const & rhs);
     node(tild_see_section const & rhs);
     node(tild_once_section const & rhs);
+    node(tild_each_section const & rhs);
   };
 
   using node_list = std::vector<node>;
@@ -170,12 +173,19 @@ namespace boost { namespace mold { namespace domain { namespace tildache { names
     tild_expr_case expr_case;
     tild_else_case else_case;
   };
+
+  struct tild_each_section
+  {
+    tild_expr_case expr_case;
+    tild_else_case else_case;
+  };
   
   inline operand::operand(const unary &v) : base_type(v) {}
   inline operand::operand(const expression &v) : base_type(v) {}
   inline node::node(mustache_section const & rhs) : base_type(rhs) {}
   inline node::node(tild_see_section const & rhs) : base_type(rhs) {}
   inline node::node(tild_once_section const & rhs) : base_type(rhs) {}
+  inline node::node(tild_each_section const & rhs) : base_type(rhs) {}
   
 }}}}} // namespace boost::mold::domain::tildache::ast
 
@@ -217,6 +227,12 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
    boost::mold::domain::tildache::ast::tild_once_section,
+   (boost::mold::domain::tildache::ast::tild_expr_case, expr_case)
+   (boost::mold::domain::tildache::ast::tild_else_case, else_case)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+   boost::mold::domain::tildache::ast::tild_each_section,
    (boost::mold::domain::tildache::ast::tild_expr_case, expr_case)
    (boost::mold::domain::tildache::ast::tild_else_case, else_case)
 )
