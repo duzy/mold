@@ -170,6 +170,7 @@ namespace boost { namespace mold { namespace interpreter
           
             // Skip if there's only one item and empty.
             if (i == 0 && machine.empty() && r0.empty()) {
+              boost::apply_visitor(*this, op.body_else);
               break;
             }
           
