@@ -169,6 +169,23 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       return ops;
     }
 
+    result_type operator()(const ast::tild_once_section &sec) const
+    {
+      interpreter::ops::op_list ops{ 
+        interpreter::ops::new_stack{},
+        (*this)(sec.expr_case.expr), // construct new stack for test
+      };
+      
+      interpreter::ops::if_then_else once{ (*this)(sec.expr_case.nodes) };
+      if (sec.else_case) {
+        once.body_else = (*this)(*sec.else_case);
+      }
+
+      ops.push_back(once);
+      ops.push_back(interpreter::ops::pop_stack{});
+      return ops;
+    }
+
     result_type operator()(const ast::tild_expr_case &sec) const
     {
       return (*this)(sec, interpreter::ops::iterate_source::top_stack);

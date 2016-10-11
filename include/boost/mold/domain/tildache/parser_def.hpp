@@ -46,8 +46,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     using node_list_type = x3::rule<struct node_list_class, ast::node_list>;
     using node_type = x3::rule<struct node_class, ast::node>;
     using tild_type = x3::rule<struct tild_class, ast::tild>;
+    using tild_once_section_type = x3::rule<struct tild_once_section_class, ast::tild_once_section>;
     using tild_see_section_type = x3::rule<struct tild_see_section_class, ast::tild_see_section>;
-    using tild_init_case_type = x3::rule<struct tild_init_case_class, ast::tild_init_case>;
+    using tild_init_case_type = x3::rule<struct tild_init_case_class, ast::tild_expr_case>;
+    using tild_once_case_type = x3::rule<struct tild_once_case_class, ast::tild_expr_case>;
     using tild_expr_case_type = x3::rule<struct tild_expr_case_class, ast::tild_expr_case>;
     using tild_else_case_type = x3::rule<struct tild_else_case_class, ast::tild_else_case>;
     using mustache_section_type = x3::rule<struct mustache_section_class, ast::mustache_section>;
@@ -68,8 +70,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     
     const tildache_type spec = "tildache";
     const tild_type tild = "tild";
+    const tild_once_section_type tild_once_section = "tild_once_section";
     const tild_see_section_type tild_see_section = "tild_see_section";
     const tild_init_case_type tild_init_case = "tild_init_case";
+    const tild_once_case_type tild_once_case = "tild_once_case";
     const tild_expr_case_type tild_expr_case = "tild_expr_case";
     const tild_else_case_type tild_else_case = "tild_else_case";
     const mustache_section_type mustache_section = "mustache_section";
@@ -118,6 +122,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     auto const node_def =
         tild
       | tild_see_section
+      | tild_once_section
       | mustache_section
       | mustache::parser::node
       ;
@@ -130,6 +135,12 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       confix(lit("{{") >> sk['~'], sk["}}"])[ -expression ]
       ;
 
+    auto const tild_once_section_def =
+      tild_once_case
+      >> -tild_else_case
+      >> omit[sk[lit("{{") >> '~' >> "end" >> '~' >> "}}"]]
+      ;
+    
     auto const tild_see_section_def =
       tild_init_case
       >> +tild_expr_case
@@ -142,6 +153,11 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       >> node_list
       ;
 
+    auto const tild_once_case_def =
+      confix(lit("{{") >> sk[char_('~') >> "once"], sk['~'] >> "}}")[ expression ]
+      >> node_list
+      ;
+    
     auto const tild_expr_case_def =
       confix(lit("{{") >> sk['~'], sk['~'] >> "}}")[ expression ]
       >> node_list
@@ -234,8 +250,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         node,
         node_list,
         tild,
+        tild_once_section,
         tild_see_section,
         tild_init_case,
+        tild_once_case,
         tild_expr_case,
         tild_else_case,
         mustache_section,
@@ -313,6 +331,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         ;
 
       keywords.add
+        ("once")
         ("see")
         ("end")
         ("$")

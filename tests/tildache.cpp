@@ -63,6 +63,11 @@ static auto TILDACHE_EXAMPLE = std::string
   {{~"c"~}}
   3.{{~}}
   {{~end~}}
+  {{~once ""~}}
+  fail
+  {{~~}}
+  okay
+  {{~end~}}
   -
   )***" + 4
 };//";
@@ -112,6 +117,7 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   Item #11
   1.a
   3.c
+  okay
   -
   )***" + 4
 };//";
