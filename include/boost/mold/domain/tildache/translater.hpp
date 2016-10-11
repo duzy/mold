@@ -175,23 +175,17 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         interpreter::ops::new_stack{},
         (*this)(sec.expr_case.expr), // construct new stack for test
       };
-      
-      interpreter::ops::if_then_else once{ (*this)(sec.expr_case.nodes) };
-      if (sec.else_case) {
-        once.body_else = (*this)(*sec.else_case);
-      }
-
-      ops.push_back(once);
+      ops.push_back(interpreter::ops::if_then_else{
+        (*this)(sec.expr_case.nodes), 
+        (sec.else_case ? (*this)(*sec.else_case) : interpreter::ops::nop{})
+      });
       ops.push_back(interpreter::ops::pop_stack{});
       return ops;
     }
 
-    result_type operator()(const ast::tild_expr_case &sec) const
-    {
-      return (*this)(sec, interpreter::ops::iterate_source::top_stack);
-    }
-    
-    result_type operator()(const ast::tild_expr_case &sec, interpreter::ops::iterate_source source) const
+    result_type operator()(const ast::tild_expr_case &sec, 
+                           interpreter::ops::iterate_source source,
+                           interpreter::ops::op body_else = {}) const
     {
       // Counting section begin directive.
       state.inline_directives += 1;
@@ -209,7 +203,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       // Counting section end directive.
       state.inline_directives += 1;
       
-      ops.push_back(interpreter::ops::for_each{ body, source });
+      ops.push_back(interpreter::ops::for_each{ body, body_else, source });
       ops.push_back(interpreter::ops::pop_stack{});
       return ops;
     }

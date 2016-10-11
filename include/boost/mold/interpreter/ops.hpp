@@ -147,7 +147,7 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   
   struct for_each
   {
-    op body;
+    op body, body_else;
     iterate_source source = iterate_source::top_stack;
   };
 
