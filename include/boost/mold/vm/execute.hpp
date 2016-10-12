@@ -6,12 +6,12 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_INTERPRETER_EXECUTE_HPP_
-#define _BOOST_MOLD_INTERPRETER_EXECUTE_HPP_ 1
-# include <boost/mold/interpreter/details/execution_machine.hpp>
-# include <boost/mold/interpreter/details/execution_visitor.hpp>
+#ifndef _BOOST_MOLD_VM_EXECUTE_HPP_
+#define _BOOST_MOLD_VM_EXECUTE_HPP_ 1
+# include <boost/mold/vm/details/execution_machine.hpp>
+# include <boost/mold/vm/details/execution_visitor.hpp>
 
-namespace boost { namespace mold { namespace interpreter
+namespace boost { namespace mold { namespace vm
 {
 
   template <typename Stream, typename Template, typename Context>
@@ -23,6 +23,6 @@ namespace boost { namespace mold { namespace interpreter
     exec(t);
   }
   
-}}} // namespace boost::mold::interpreter
+}}} // namespace boost::mold::vm
 
-#endif//_BOOST_MOLD_INTERPRETER_EXECUTE_HPP_
+#endif//_BOOST_MOLD_VM_EXECUTE_HPP_

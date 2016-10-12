@@ -8,15 +8,15 @@
  */ 
 #ifndef _BOOST_MOLD_GENERATE_HPP_
 #define _BOOST_MOLD_GENERATE_HPP_ 1
-# include <boost/mold/interpreter/execute.hpp>
+# include <boost/mold/vm/execute.hpp>
 namespace boost { namespace mold
 {
 
   template <typename Stream, typename Context>
-  void generate(Stream &stream, interpreter::ops::op const &op,
+  void generate(Stream &stream, vm::ops::op const &op,
       const Context &context)
   {
-    interpreter::execute(stream, op, context);
+    vm::execute(stream, op, context);
   }
   
 }} // namespace boost::mold

@@ -33,13 +33,13 @@ namespace boost { namespace mold { namespace domain { namespace mustache
   
   struct translation_visitor
   {
-    using result_type = interpreter::ops::op;
+    using result_type = vm::ops::op;
 
     explicit translation_visitor(translation_state &state) : state(state) {}
     
     result_type operator()(const ast::node_list &l) const
     {
-      interpreter::ops::op_list ops;
+      vm::ops::op_list ops;
       for (auto const &n : l) {
         ops.push_back(boost::apply_visitor(*this, n));
       }
@@ -59,7 +59,7 @@ namespace boost { namespace mold { namespace domain { namespace mustache
 
     result_type operator()(const ast::comment &) const
     {
-      return interpreter::ops::nop{};
+      return vm::ops::nop{};
     }
 
     result_type operator()(const ast::blank_text &blank) const
@@ -67,7 +67,7 @@ namespace boost { namespace mold { namespace domain { namespace mustache
       // Caches whitespaces to decide rendering later.
       state.whitespace += blank;
 
-      return interpreter::ops::nop{};
+      return vm::ops::nop{};
     }
 
     result_type operator()(const ast::eol &eol) const
@@ -76,15 +76,15 @@ namespace boost { namespace mold { namespace domain { namespace mustache
       if (state.inline_directives == 1 && state.inline_entities == 0) {
         state.inline_directives = 0;
         state.whitespace.clear();
-        return interpreter::ops::nop(); // Do nothing.
+        return vm::ops::nop(); // Do nothing.
       }
       
       state.whitespace += eol;
       state.inline_directives = 0;
       state.inline_entities = 0;
       
-      auto op = interpreter::ops::render{ 
-        interpreter::ops::kind::immediate, state.whitespace };
+      auto op = vm::ops::render{ 
+        vm::ops::kind::immediate, state.whitespace };
 
       state.whitespace.clear();
       
@@ -97,13 +97,13 @@ namespace boost { namespace mold { namespace domain { namespace mustache
       state.inline_entities = 0;
 
       if (state.whitespace.empty()) {
-        return interpreter::ops::end{};
+        return vm::ops::end{};
       }
 
-      auto ops = interpreter::ops::op_list{
-        interpreter::ops::render{ 
-          interpreter::ops::kind::immediate, state.whitespace },
-        interpreter::ops::end{},
+      auto ops = vm::ops::op_list{
+        vm::ops::render{ 
+          vm::ops::kind::immediate, state.whitespace },
+        vm::ops::end{},
       };
       
       state.whitespace.clear();
@@ -113,47 +113,47 @@ namespace boost { namespace mold { namespace domain { namespace mustache
 
     result_type operator()(const ast::literal_text &lit) const
     {
-      interpreter::ops::op_list ops;
+      vm::ops::op_list ops;
 
       state.inline_entities += 1;
 
       if (0 < state.whitespace.size()) {
-        ops.push_back(interpreter::ops::render{ 
-            interpreter::ops::kind::immediate, state.whitespace });
+        ops.push_back(vm::ops::render{ 
+            vm::ops::kind::immediate, state.whitespace });
         state.whitespace.clear();
       }
       
-      ops.push_back(interpreter::ops::render{ 
-          interpreter::ops::kind::immediate, lit });
+      ops.push_back(vm::ops::render{ 
+          vm::ops::kind::immediate, lit });
       return ops;
     }
 
     result_type operator()(const ast::variable &var) const
     {
-      interpreter::ops::op_list ops;
+      vm::ops::op_list ops;
 
       state.inline_entities += 1;
       
       auto has_spaces = 0 < state.whitespace.size();
       if ( has_spaces ) {
-        ops.push_back(interpreter::ops::load{
-          interpreter::ops::kind::immediate,
+        ops.push_back(vm::ops::load{
+          vm::ops::kind::immediate,
           state.whitespace, 0, false
         });
         state.whitespace.clear();
       }
 
-      ops.push_back(interpreter::ops::load{
-        interpreter::ops::kind::variable,
+      ops.push_back(vm::ops::load{
+        vm::ops::kind::variable,
         var.name, 0, has_spaces
       });
       
       if (var.unescaped) {
-        ops.push_back(interpreter::ops::edit{ edit::unescape_html() });
+        ops.push_back(vm::ops::edit{ edit::unescape_html() });
       }
       
-      ops.push_back(interpreter::ops::render{ 
-          interpreter::ops::kind::memory, "", 0, true });
+      ops.push_back(vm::ops::render{ 
+          vm::ops::kind::memory, "", 0, true });
       return ops;
     }
 
@@ -162,7 +162,7 @@ namespace boost { namespace mold { namespace domain { namespace mustache
       // Counting section begin directive.
       state.inline_directives += 1;
       
-      interpreter::ops::op_list body;
+      vm::ops::op_list body;
       for (auto const &n : sec.nodes) {
         body.push_back(boost::apply_visitor(*this, n));
       }
@@ -170,14 +170,14 @@ namespace boost { namespace mold { namespace domain { namespace mustache
       // Counting section end directive.
       state.inline_directives += 1;
       
-      return interpreter::ops::switch_context{ sec.name, sec.inverted, body };
+      return vm::ops::switch_context{ sec.name, sec.inverted, body };
     }
 
     result_type operator()(const ast::partial &par) const
     {
       // TODO: load file and compile it into a `body`
-      return interpreter::ops::render{ 
-        interpreter::ops::kind::immediate, "<partial:"+par+">" };
+      return vm::ops::render{ 
+        vm::ops::kind::immediate, "<partial:"+par+">" };
     }
 
   protected:

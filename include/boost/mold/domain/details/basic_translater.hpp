@@ -8,7 +8,7 @@
  */ 
 #ifndef _BOOST_MOLD_DOMAIN_DETAILS_BASIC_TRANSLATER_HPP_
 #define _BOOST_MOLD_DOMAIN_DETAILS_BASIC_TRANSLATER_HPP_ 1
-# include <boost/mold/interpreter/ops.hpp>
+# include <boost/mold/vm/ops.hpp>
 namespace boost { namespace mold { namespace domain { namespace details
 {
 
@@ -16,7 +16,7 @@ namespace boost { namespace mold { namespace domain { namespace details
   struct basic_translater
   {
     template <typename NodeType>
-    interpreter::ops::op translate(const NodeType &ast)
+    vm::ops::op translate(const NodeType &ast)
     {
       State state;
       Worker trans(state);

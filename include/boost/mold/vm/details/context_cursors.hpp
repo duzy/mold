@@ -6,10 +6,10 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_INTERPRETER_DETAILS_CONTEXT_CURSORS_HPP_
-#define _BOOST_MOLD_INTERPRETER_DETAILS_CONTEXT_CURSORS_HPP_ 1
+#ifndef _BOOST_MOLD_VM_DETAILS_CONTEXT_CURSORS_HPP_
+#define _BOOST_MOLD_VM_DETAILS_CONTEXT_CURSORS_HPP_ 1
 # include <boost/mold/value.hpp>
-namespace boost { namespace mold { namespace interpreter { namespace details
+namespace boost { namespace mold { namespace vm { namespace details
 {
 
   template<typename Iterator, typename Interface>
@@ -37,6 +37,6 @@ namespace boost { namespace mold { namespace interpreter { namespace details
     }
   };
       
-}}}} // namespace boost::mold::interpreter::details
+}}}} // namespace boost::mold::vm::details
 
-#endif//_BOOST_MOLD_INTERPRETER_DETAILS_CONTEXT_CURSORS_HPP_
+#endif//_BOOST_MOLD_VM_DETAILS_CONTEXT_CURSORS_HPP_

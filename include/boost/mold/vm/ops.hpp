@@ -6,12 +6,12 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_INTERPRETER_OPS_HPP_
-#define _BOOST_MOLD_INTERPRETER_OPS_HPP_ 1
+#ifndef _BOOST_MOLD_VM_OPS_HPP_
+#define _BOOST_MOLD_VM_OPS_HPP_ 1
 # include <boost/spirit/home/x3/support/ast/variant.hpp>
 # include <vector>
 # include <string>
-namespace boost { namespace mold { namespace interpreter { namespace ops 
+namespace boost { namespace mold { namespace vm { namespace ops 
 {
   struct for_each;
   struct if_then_else;
@@ -175,6 +175,6 @@ namespace boost { namespace mold { namespace interpreter { namespace ops
   inline op::op(const switch_context &o) : base_type(o) {}
   inline op::op(const op_list &l) : base_type(l) {}
   
-}}}} // namespace boost::mold::interpreter::ops
+}}}} // namespace boost::mold::vm::ops
 
-#endif//_BOOST_MOLD_INTERPRETER_OPS_HPP_
+#endif//_BOOST_MOLD_VM_OPS_HPP_

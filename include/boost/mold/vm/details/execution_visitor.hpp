@@ -6,10 +6,10 @@
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_VISITOR_HPP_
-#define _BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_VISITOR_HPP_ 1
-# include <boost/mold/interpreter/details/context_cursors.hpp>
-# include <boost/mold/interpreter/ops.hpp>
+#ifndef _BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_
+#define _BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_ 1
+# include <boost/mold/vm/details/context_cursors.hpp>
+# include <boost/mold/vm/ops.hpp>
 # include <boost/spirit/home/x3/numeric/int.hpp>
 # include <boost/spirit/home/x3/core/parse.hpp>
 # include <boost/spirit/home/x3/char/char_class.hpp>
@@ -17,7 +17,7 @@
 # include <iterator>
 # include <limits>
 # include <sstream>
-namespace boost { namespace mold { namespace interpreter
+namespace boost { namespace mold { namespace vm
 {
   using undefined_behavior = std::runtime_error;
   using exceeds_max_range = std::runtime_error;
@@ -286,6 +286,7 @@ namespace boost { namespace mold { namespace interpreter
 
       void operator()(ops::binary op) const
       {
+        std::clog << "binary: " << int(op) << ", " << machine.size() << std::endl;
         assert(!machine.empty());
         auto rhs = machine.top(); machine.pop();
         
@@ -426,6 +427,6 @@ namespace boost { namespace mold { namespace interpreter
     };
 
   } // namespace details
-}}} // namespace boost::mold::interpreter
+}}} // namespace boost::mold::vm
 
-#endif//_BOOST_MOLD_INTERPRETER_DETAILS_EXECUTION_VISITOR_HPP_
+#endif//_BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_
