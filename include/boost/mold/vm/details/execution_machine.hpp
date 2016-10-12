@@ -227,9 +227,8 @@ namespace boost { namespace mold { namespace vm
       void push_reg(unsigned int i) { stack.top().push_back(reg(i)); }
       void push_var(const std::string &name) 
       {
-        if ( auto s = get_var_text(name) ) {
-          stack.top().push_back(*s);
-        }
+        auto s = get_var_text(name);
+        stack.top().push_back(s ? *s : std::string());
       }
 
       auto size() const { return stack.top().size(); } // expensive with list

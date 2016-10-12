@@ -286,7 +286,7 @@ namespace boost { namespace mold { namespace vm
 
       void operator()(ops::binary op) const
       {
-        std::clog << "binary: " << int(op) << ", " << machine.size() << std::endl;
+        //std::clog << "binary: " << int(op) << ", " << machine.size() << std::endl;
         assert(!machine.empty());
         auto rhs = machine.top(); machine.pop();
         
