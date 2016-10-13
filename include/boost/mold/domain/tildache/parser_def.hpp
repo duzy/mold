@@ -227,8 +227,8 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       ;
 
     auto const unary_expr_def =
-      ( unary_op > primary_expr )
-      |  primary_expr
+      primary_expr
+      | ( unary_op > primary_expr )
       ;
 
     auto const primary_expr_def =

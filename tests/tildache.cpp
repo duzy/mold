@@ -11,6 +11,7 @@
 #include <boost/mold/mold.hpp>
 #include <boost/mold/format/tildache.hpp>
 #include <boost/mold/format/tildache.ipp>
+//#include <boost/optional/optional_io.hpp>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -59,9 +60,9 @@ static auto TILDACHE_EXAMPLE = std::string
   {{~"a"~}}
   1.{{~}}
   {{~"b"~}}
-  2.{{~}}
+  2.{{~}} {{~}}
   {{~"c"~}}
-  3.{{~}}
+  3.{{~}} {{~}} {{~}}
   {{~end~}}
   {{~once ""~}}
   fail
@@ -74,6 +75,35 @@ static auto TILDACHE_EXAMPLE = std::string
   {{~each ""~}}
   {{~~}}
   okay
+  {{~end~}}
+  {{~once "t" && "t"~}}
+  okay
+  {{~end~}}
+  {{~once !""~}}
+  okay
+  {{~end~}}
+  {{~once !"" && "t"~}}
+  okay
+  {{~end~}}
+  {{~once "t" && "t" && "t"~}}
+  okay
+  {{~end~}}
+  {{~once "t" && (!"")~}}
+  okay
+  {{~end~}}
+  =========
+  {{~see "a","b","c"~}}
+  {{~"a"~}}
+  saw {{~}}
+  {{~~}}
+  saw else
+  {{~end~}}
+  =========
+  {{~see "a","b","c"~}}
+  {{~"..."~}}
+  saw {{~}}
+  {{~~}}
+  saw else
   {{~end~}}
   -
   )***" + 4
@@ -123,12 +153,21 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   Item #10
   Item #11
   1.a
-  3.c
+  3.c c c
   okay
   a
   b
   c
   okay
+  okay
+  okay
+  okay
+  okay
+  okay
+  =========
+  saw a
+  =========
+  saw else
   -
   )***" + 4
 };//";

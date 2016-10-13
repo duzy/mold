@@ -189,7 +189,7 @@ namespace boost { namespace mold { namespace vm
           if (!boost::get<ops::undefined>(&op.body_then))
             boost::apply_visitor(*this, op.body_then);
         } else {
-          if (!boost::get<ops::undefined>(&op.body_then))
+          if (!boost::get<ops::undefined>(&op.body_else))
             boost::apply_visitor(*this, op.body_else);
         }
       }
@@ -254,6 +254,16 @@ namespace boost { namespace mold { namespace vm
       void operator()(const ops::pop_stack &op) const
       {
         machine.pop_stack();
+      }
+
+      void operator()(const ops::new_regs &op) const
+      {
+        machine.new_regs();
+      }
+
+      void operator()(const ops::pop_regs &op) const
+      {
+        machine.pop_regs();
       }
       
       void operator()(ops::unary op) const

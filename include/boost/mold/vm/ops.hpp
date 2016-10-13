@@ -80,6 +80,9 @@ namespace boost { namespace mold { namespace vm { namespace ops
     bool memorize;
   };
 
+  struct new_regs {};
+  struct pop_regs {};
+
   struct new_stack {};
   struct pop_stack {};
 
@@ -112,7 +115,7 @@ namespace boost { namespace mold { namespace vm { namespace ops
   struct op : boost::spirit::x3::variant<
     undefined, nop, end, load,
     clear, edit, render,
-    push, pop, new_stack, pop_stack,
+    push, pop, new_stack, pop_stack, new_regs, pop_regs,
     test_cursor, unary, binary,
     boost::spirit::x3::forward_ast<for_each>, 
     boost::spirit::x3::forward_ast<if_then_else>,
@@ -130,6 +133,8 @@ namespace boost { namespace mold { namespace vm { namespace ops
     op(const pop &o) : base_type(o) {}
     op(const new_stack &o) : base_type(o) {}
     op(const pop_stack &o) : base_type(o) {}
+    op(const new_regs &o) : base_type(o) {}
+    op(const pop_regs &o) : base_type(o) {}
     op(const test_cursor &o) : base_type(o) {}
     op(const unary &o) : base_type(o) {}
     op(const binary &o) : base_type(o) {}

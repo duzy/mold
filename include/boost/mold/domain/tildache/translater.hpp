@@ -67,19 +67,17 @@ namespace boost { namespace mold { namespace domain { namespace tildache
         state.whitespace.clear();
       }
       
-      ops.push_back(vm::ops::new_stack{});
-      
       if (t.expr) {
+        ops.push_back(vm::ops::new_stack{});
         ops.push_back((*this)(*t.expr)); // construct new stack
         ops.push_back(vm::ops::render{ 
           vm::ops::kind::stack, "", 0, true });
+        ops.push_back(vm::ops::pop_stack{});
       } else {
         // {{~}} renders reg #0
         ops.push_back(vm::ops::render{ 
-          vm::ops::kind::reg, "", 0, true });
+          vm::ops::kind::reg, "", 0, false });
       }
-      
-      ops.push_back(vm::ops::pop_stack{});
       return ops;
     }
 
@@ -153,6 +151,7 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     result_type operator()(const ast::tild_see_section &ts) const
     {
       vm::ops::op_list ops{ 
+        vm::ops::new_regs{},
         vm::ops::new_stack{},
         (*this)(ts.init_case.expr), // construct new stack for test
       };
@@ -162,10 +161,18 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       }
 
       if (ts.else_case) {
-        ops.push_back(vm::ops::if_then_else{
-          {}, (*this)(*ts.else_case) });
+        ops.push_back(vm::ops::new_stack{});
+        
+        // The reg#0 has the value of the last iterated item. If it's empty,
+        // the "else" block is executed.
+        ops.push_back(vm::ops::push{ vm::ops::kind::reg, "", 0 });
+        ops.push_back(vm::ops::if_then_else{{}, (*this)(*ts.else_case)});
+        
+        ops.push_back(vm::ops::pop_stack{});
       }
+
       ops.push_back(vm::ops::pop_stack{});
+      ops.push_back(vm::ops::pop_regs{});
       return ops;
     }
 
@@ -283,7 +290,6 @@ namespace boost { namespace mold { namespace domain { namespace tildache
           boost::apply_visitor(*this, op.oper),
           vm::ops::unary::test_negative,
         };
-        
       default: break;
       }
       std::clog << __PRETTY_FUNCTION__ << std::endl;

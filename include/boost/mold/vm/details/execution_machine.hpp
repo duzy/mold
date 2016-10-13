@@ -45,6 +45,10 @@ namespace boost { namespace mold { namespace vm
       }
     };
 
+    struct registry final : std::array<std::string, 8>
+    {
+    };
+
     template<template<typename Iterator, typename Interface> class Cursor>
     struct local_initialize
     {
@@ -89,8 +93,9 @@ namespace boost { namespace mold { namespace vm
         : stream(stream)
         , root_context(v)
         , lookup({{ &root_context }})
+        , stack()
+        , regs({registry{}})
       {
-        regs.resize(8);
       }
 
       const value *find_var(const std::string &name) const
@@ -136,8 +141,8 @@ namespace boost { namespace mold { namespace vm
 
       bool render_reg(unsigned int index) const
       {
-        if (index < regs.size()) {
-          stream << regs[index];
+        if (index < regs.top().size()) {
+          stream << regs.top()[index];
           return true;
         }
         return false;
@@ -180,8 +185,8 @@ namespace boost { namespace mold { namespace vm
 
       bool load_reg(unsigned int index)
       {
-        if (index < regs.size()) {
-          memory += regs[index];
+        if (index < regs.top().size()) {
+          memory += regs.top()[index];
           return true;
         }
         return false;
@@ -209,6 +214,9 @@ namespace boost { namespace mold { namespace vm
         return top.cursor && top.cursor->is_last();
       }
 
+      void new_regs() { regs.push(registry{}); }
+      void pop_regs() { regs.pop(); }
+
       std::list<std::string> &top_stack() { return stack.top(); }
       void new_stack() { stack.push(std::list<std::string>{}); }
       void push_stack(const std::list<std::string> &s) { stack.push(s); }
@@ -234,7 +242,7 @@ namespace boost { namespace mold { namespace vm
       auto size() const { return stack.top().size(); } // expensive with list
       auto empty() const { return stack.top().empty(); }
       
-      std::string &reg(unsigned n) { return regs[0]; }
+      std::string &reg(unsigned n) { return regs.top()[0]; }
 
       template<template<typename Iterator, typename Interface> class Cursor>
       struct scope
@@ -276,7 +284,7 @@ namespace boost { namespace mold { namespace vm
       const value root_context;
       std::list<local> lookup;
       std::stack<std::list<std::string>> stack;
-      std::vector<std::string> regs;
+      std::stack<registry> regs;
       std::string memory;
 
       local &new_lookup(const std::string &name)
