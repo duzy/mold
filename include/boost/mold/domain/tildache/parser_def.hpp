@@ -124,10 +124,10 @@ namespace boost { namespace mold { namespace domain { namespace tildache
       ;
 
     auto const node_def =
-        tild
-      | tild_see_section
+        tild_see_section
       | tild_once_section
       | tild_each_section
+      | tild
       | mustache_section
       | mustache::parser::node
       ;
@@ -143,44 +143,44 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     auto const tild_once_section_def =
       tild_once_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("once") >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("once") >> "}}"]]
       ;
 
     auto const tild_each_section_def =
       tild_each_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("each") >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("each") >> "}}"]]
       ;
     
     auto const tild_see_section_def =
       tild_see_case
       >> +tild_expr_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("see") >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("see") >> "}}"]]
       ;
 
     auto const tild_see_case_def =
-      confix(lit("{{") >> sk[char_('~') >> "see"], sk['~'] >> "}}")[ expression ]
+      confix(lit("{{") >> sk[char_('~') >> "see"], sk["}}"])[ expression ]
       >> node_list
       ;
 
     auto const tild_once_case_def =
-      confix(lit("{{") >> sk[char_('~') >> "once"], sk['~'] >> "}}")[ expression ]
+      confix(lit("{{") >> sk[char_('~') >> "once"], sk["}}"])[ expression ]
       >> node_list
       ;
 
     auto const tild_each_case_def =
-      confix(lit("{{") >> sk[char_('~') >> "each"], sk['~'] >> "}}")[ expression ]
+      confix(lit("{{") >> sk[char_('~') >> "each"], sk["}}"])[ expression ]
       >> node_list
       ;
     
     auto const tild_expr_case_def =
-      confix(lit("{{") >> sk['~'], sk['~'] >> "}}")[ expression ]
+      confix(lit("{{") >> sk[char_('~') >> "case"], sk["}}"])[ expression ]
       >> node_list
       ;
     
     auto const tild_else_case_def =
-      omit[sk[lit("{{") >> '~' >> '~' >> "}}"]]
+      omit[sk[lit("{{") >> '~' >> "else" >> "}}"]]
       >> node_list
       ;
     
@@ -350,6 +350,8 @@ namespace boost { namespace mold { namespace domain { namespace tildache
 
       keywords.add
         ("once")
+        ("each")
+        ("else")
         ("see")
         ("end")
         ("$")

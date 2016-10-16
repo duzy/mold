@@ -48,63 +48,63 @@ static auto TILDACHE_EXAMPLE = std::string
   {{#Members}}
   {{Name}}
   {{/Members}}
-  {{~ see "1".."20" ~}}
-  {{~ "3".."8" ~}}
+  {{~ see "1".."20" }}
+  {{~ case "3".."8" }}
   Item #{{a}}{{~}}
-  {{~ "7".."11" ~}}
+  {{~ case "7".."11" }}
   Item #{{a}}{{~}}
-  {{~~}}
+  {{~ else }}
   ................
-  {{~ end ~}}
-  {{~see "a","c"~}}
-  {{~"a"~}}
+  {{~ end }}
+  {{~see "a","c"}}
+  {{~case "a"}}
   1.{{~}}
-  {{~"b"~}}
+  {{~case "b"}}
   2.{{~}} {{~}}
-  {{~"c"~}}
+  {{~case "c"}}
   3.{{~}} {{~}} {{~}}
-  {{~end~}}
-  {{~once ""~}}
+  {{~end}}
+  {{~once ""}}
   fail
-  {{~~}}
+  {{~else}}
   okay
-  {{~end~}}
-  {{~each "a","b","c"~}}
+  {{~end}}
+  {{~each "a","b","c"}}
   {{~}}
-  {{~end~}}
-  {{~each ""~}}
-  {{~~}}
+  {{~end}}
+  {{~each ""}}
+  {{~else}}
   okay
-  {{~end~}}
-  {{~once "t" && "t"~}}
+  {{~end}}
+  {{~once "t" && "t"}}
   okay
-  {{~end~}}
-  {{~once !""~}}
+  {{~end}}
+  {{~once !""}}
   okay
-  {{~end~}}
-  {{~once !"" && "t"~}}
+  {{~end}}
+  {{~once !"" && "t"}}
   okay
-  {{~end~}}
-  {{~once "t" && "t" && "t"~}}
+  {{~end}}
+  {{~once "t" && "t" && "t"}}
   okay
-  {{~end~}}
-  {{~once "t" && (!"")~}}
+  {{~end}}
+  {{~once "t" && (!"")}}
   okay
-  {{~end~}}
+  {{~end}}
   =========
-  {{~see "a","b","c"~}}
-  {{~"a"~}}
+  {{~see "a","b","c"}}
+  {{~case "a"}}
   saw {{~}}
-  {{~~}}
+  {{~else}}
   saw else
-  {{~end~}}
+  {{~end}}
   =========
-  {{~see "a","b","c"~}}
-  {{~"..."~}}
+  {{~see "a","b","c"}}
+  {{~case "..."}}
   saw {{~}}
-  {{~~}}
+  {{~else}}
   saw else
-  {{~end~}}
+  {{~end}}
   -
   )***" + 4
 };//";
