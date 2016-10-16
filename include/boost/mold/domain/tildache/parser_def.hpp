@@ -143,20 +143,20 @@ namespace boost { namespace mold { namespace domain { namespace tildache
     auto const tild_once_section_def =
       tild_once_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("once") >> '~' >> "}}"]]
       ;
 
     auto const tild_each_section_def =
       tild_each_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("each") >> '~' >> "}}"]]
       ;
     
     auto const tild_see_section_def =
       tild_see_case
       >> +tild_expr_case
       >> -tild_else_case
-      >> omit[sk[lit("{{") >> '~' >> "end" >> '~' >> "}}"]]
+      >> omit[sk[lit("{{") >> '~' >> "end" >> -lit("see") >> '~' >> "}}"]]
       ;
 
     auto const tild_see_case_def =
