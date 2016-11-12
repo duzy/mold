@@ -12,7 +12,7 @@ and logical computation.
 All domain languages are compiled into programs for the virtual machine. It's
 possible to support many advanced languages.
 
-Support: [https://www.bountysource.com/teams/mold] ([Salt It Now!](https://salt.bountysource.com/checkout/amount?team=mold]))
+Support: [https://www.bountysource.com/teams/mold] -- [Salt It Now!](https://salt.bountysource.com/checkout/amount?team=mold])
 
 Introduction
 ------------
