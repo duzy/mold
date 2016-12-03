@@ -29,6 +29,7 @@ The long term goals are:
   * Performance improvement: avoid many string copy operations.
   * Support multiple domain languages after [mustache][].
   * Mordern C++ design and C++1z friendly.
+  * Persistant byte code representation.
 
 Examples
 --------
