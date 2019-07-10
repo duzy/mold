@@ -24,10 +24,10 @@ The **mold** engine is inspired by [boostache][]. Reasons why I started
   * [boostache][] source code seems to be immature so far and not updated.
 
 The primary goal of **mold** is at least a fully working [mustache][] engine.
-The long term goals are:
+The long term (possible) goals are:
 
   * Performance improvement: avoid many string copy operations.
-  * Support multiple domain languages after [mustache][].
+  * Support multiple domain languages after [mustache][] is done.
   * Mordern C++ design and C++1z friendly.
   * Persistant byte code representation.
 
