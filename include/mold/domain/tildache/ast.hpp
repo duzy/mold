@@ -9,6 +9,7 @@
 #ifndef _BOOST_MOLD_DOMAIN_TILDACHE_AST_HPP_
 #define _BOOST_MOLD_DOMAIN_TILDACHE_AST_HPP_ 1
 # include <mold/domain/mustache/ast.hpp>
+#if 0
 namespace boost { namespace spirit { namespace x3 { namespace traits
 {
   template <typename Source, typename Dest>
@@ -18,6 +19,7 @@ namespace boost { namespace spirit { namespace x3 { namespace traits
     if (src) move_to(*src, dest);
   }
 }}}} // boost::spirit::x3::traits
+#endif
 namespace mold { namespace domain { namespace tildache { namespace ast
 {
   struct unary;
@@ -181,25 +183,29 @@ namespace mold { namespace domain { namespace tildache { namespace ast
   };
   
   using tild_expr_cases = std::vector<tild_expr_case>;
+# if 0
   using tild_else_case = boost::optional<node_list>;
+# else
+  using tild_else_case = node_list;
+# endif
   
   struct tild_see_section
   {
     tild_expr_case  init_case;
     tild_expr_cases expr_cases;
-    tild_else_case  else_case;
+    boost::optional<tild_else_case> else_case;
   };
 
   struct tild_once_section
   {
     tild_expr_case expr_case;
-    tild_else_case else_case;
+    boost::optional<tild_else_case> else_case;
   };
 
   struct tild_each_section
   {
     tild_expr_case expr_case;
-    tild_else_case else_case;
+    boost::optional<tild_else_case> else_case;
   };
 
 }}}} // namespace mold::domain::tildache::ast
@@ -237,19 +243,19 @@ BOOST_FUSION_ADAPT_STRUCT(
    mold::domain::tildache::ast::tild_see_section,
    (mold::domain::tildache::ast::tild_expr_case,  init_case)
    (mold::domain::tildache::ast::tild_expr_cases, expr_cases)
-   (mold::domain::tildache::ast::tild_else_case,  else_case)
+   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
    mold::domain::tildache::ast::tild_once_section,
    (mold::domain::tildache::ast::tild_expr_case, expr_case)
-   (mold::domain::tildache::ast::tild_else_case, else_case)
+   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
    mold::domain::tildache::ast::tild_each_section,
    (mold::domain::tildache::ast::tild_expr_case, expr_case)
-   (mold::domain::tildache::ast::tild_else_case, else_case)
+   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
 )
 
 #endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_
