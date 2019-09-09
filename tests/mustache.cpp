@@ -1,16 +1,16 @@
 /**
  *  \file mustache.hpp
  *
- *  Copyright 2016 Duzy Chan <code@duzy.info>
+ *  Copyright 2016~2019 Duzy Chan <code@duzy.info>, ExtBit Limited
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */
 //#define BOOST_SPIRIT_X3_DEBUG
 #include <boost/core/lightweight_test.hpp>
-#include <boost/mold/mold.hpp>
-#include <boost/mold/format/mustache.hpp>
-#include <boost/mold/format/mustache.ipp>
+#include <mold/mold.hpp>
+#include <mold/format/mustache.hpp>
+#include <mold/format/mustache.ipp>
 #include <map>
 #include <sstream>
 #include <iostream>
@@ -69,8 +69,6 @@ static auto MUSTACHE_EXAMPLE_EXPECT = std::string
 };//";
 
 //BOOST_MOLD_MUSTACHE_INSTANTIATE(std::string::iterator, object)
-
-namespace mold = boost::mold;
   
 int main(int argc, char**argv)
 {

@@ -35,12 +35,10 @@ Examples
 --------
 
 ```c++
-#include <boost/mold/mold.hpp>
-#include <boost/mold/format/mustache.hpp>
-#include <boost/mold/format/mustache.ipp>
+#include <mold/mold.hpp>
+#include <mold/format/mustache.hpp>
+#include <mold/format/mustache.ipp>
 #include <iostream>
-
-namespace mold = boost::mold;
 
 static std::string MUSTACHE_EXAMPLE
 {

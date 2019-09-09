@@ -1,16 +1,16 @@
 /**
  *  \file tildache.hpp
  *
- *  Copyright 2016 Duzy Chan <code@duzy.info>
+ *  Copyright 2016~2019 Duzy Chan <code@duzy.info>, ExtBit Limited
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */
 //#define BOOST_SPIRIT_X3_DEBUG
 #include <boost/core/lightweight_test.hpp>
-#include <boost/mold/mold.hpp>
-#include <boost/mold/format/tildache.hpp>
-#include <boost/mold/format/tildache.ipp>
+#include <mold/mold.hpp>
+#include <mold/format/tildache.hpp>
+#include <mold/format/tildache.ipp>
 //#include <boost/optional/optional_io.hpp>
 #include <map>
 #include <sstream>
@@ -172,8 +172,6 @@ static auto TILDACHE_EXAMPLE_EXPECT = std::string
   )***" + 4
 };//";
 
-namespace mold = boost::mold;
-  
 int main(int argc, char**argv)
 {
   mold::object context
