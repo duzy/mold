@@ -1,0 +1,17 @@
+project (lib)
+
+import (
+    lib/boost/algorithm
+    lib/boost/format
+    lib/boost/spirit
+    lib/boost/smart_ptr
+    lib/boost/lexical_cast
+    lib/boost/test
+)
+
+cxxflags_derived := $(unique $(cxxflags))
+
+-:
+
+:user:
+	user→cxxflags += $(cxxflags_derived) -I$//include
