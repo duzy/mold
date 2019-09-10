@@ -186,7 +186,10 @@ namespace mold { namespace domain { namespace tildache { namespace ast
 # if 0
   using tild_else_case = boost::optional<node_list>;
 # else
-  using tild_else_case = node_list;
+  struct tild_else_case : node_list {
+    using node_list::node_list;
+    using node_list::operator=;
+  };
 # endif
   
   struct tild_see_section
