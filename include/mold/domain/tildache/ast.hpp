@@ -172,7 +172,6 @@ namespace mold { namespace domain { namespace tildache { namespace ast
   };
   
   using tild_expr_cases = std::vector<tild_expr_case>;
-# if 1
   using tild_else_case = boost::optional<node_list>;
 
   struct tild_see_section
@@ -193,31 +192,6 @@ namespace mold { namespace domain { namespace tildache { namespace ast
     tild_expr_case expr_case;
     tild_else_case else_case;
   };
-# else
-  struct tild_else_case : node_list {
-    using node_list::node_list;
-    using node_list::operator=;
-  };
-  
-  struct tild_see_section
-  {
-    tild_expr_case  init_case;
-    tild_expr_cases expr_cases;
-    boost::optional<tild_else_case> else_case;
-  };
-
-  struct tild_once_section
-  {
-    tild_expr_case expr_case;
-    boost::optional<tild_else_case> else_case;
-  };
-
-  struct tild_each_section
-  {
-    tild_expr_case expr_case;
-    boost::optional<tild_else_case> else_case;
-  };
-# endif
 
 }}}} // namespace mold::domain::tildache::ast
 
