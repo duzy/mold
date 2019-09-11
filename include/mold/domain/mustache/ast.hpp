@@ -103,17 +103,7 @@ namespace mold { namespace domain { namespace mustache { namespace ast
   
 }}}} // namespace mold::domain::mustache::ast
 
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::mustache::ast::variable,
-   (bool, unescaped)
-   (mold::domain::mustache::ast::identifier, name)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::mustache::ast::section,
-   (bool, inverted)
-   (mold::domain::mustache::ast::identifier, name)
-   (mold::domain::mustache::ast::node_list, nodes)
-)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::mustache::ast::variable, unescaped, name)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::mustache::ast::section, inverted, name, nodes)
 
 #endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_

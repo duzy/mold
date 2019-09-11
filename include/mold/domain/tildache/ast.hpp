@@ -213,52 +213,13 @@ namespace mold { namespace domain { namespace tildache { namespace ast
 
 }}}} // namespace mold::domain::tildache::ast
 
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::unary,
-   (mold::domain::tildache::ast::optoken, op)
-   (mold::domain::tildache::ast::operand, oper)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::operation,
-   (mold::domain::tildache::ast::optoken, op)
-   (mold::domain::tildache::ast::operand, oper)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::expression,
-   (mold::domain::tildache::ast::operand, first)
-   (mold::domain::tildache::ast::operations, rest)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::tild_expr,
-   (mold::domain::tildache::ast::expression_opt, expr)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::tild_expr_case,
-   (mold::domain::tildache::ast::expression, expr)
-   (mold::domain::tildache::ast::node_list, nodes)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::tild_see_section,
-   (mold::domain::tildache::ast::tild_expr_case,  init_case)
-   (mold::domain::tildache::ast::tild_expr_cases, expr_cases)
-   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::tild_once_section,
-   (mold::domain::tildache::ast::tild_expr_case, expr_case)
-   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
-)
-
-BOOST_FUSION_ADAPT_STRUCT(
-   mold::domain::tildache::ast::tild_each_section,
-   (mold::domain::tildache::ast::tild_expr_case, expr_case)
-   (boost::optional<mold::domain::tildache::ast::tild_else_case>, else_case)
-)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::unary, op, oper)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::operation, op)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::expression, first, rest)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_expr, expr)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_expr_case, expr, nodes)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_see_section, init_case, expr_cases, else_case)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_once_section, expr_case, else_case)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_each_section, expr_case, else_case)
 
 #endif//_BOOST_MOLD_DOMAIN_MUSTACHE_AST_HPP_
