@@ -197,7 +197,7 @@ namespace mold { namespace vm
       void operator()(const ops::switch_context &op) const
       {
         typename Machine::template scope<details::context_cursor>
-          scope(machine, op.name, op.inverted);
+          scope(machine, op.name/*, op.inverted*/); // FIXME: `inverted` unused
         if (scope.is_valid()) {
           do { boost::apply_visitor(*this, op.body); } while (scope.next());
         }

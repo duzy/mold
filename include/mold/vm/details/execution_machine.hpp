@@ -24,9 +24,9 @@ namespace mold { namespace vm
       virtual bool is_first() const = 0;
       virtual bool is_last() const = 0;
       virtual ~cursor_interface() {}
-      const value *get(array::const_reverse_iterator i) { return &(*i); }
+      //const value *get(array::const_reverse_iterator i) { return &(*i); }
       const value *get(array::const_iterator i) { return &(*i); }
-      const value *get(object::const_reverse_iterator i) { return &i->second; }
+      //const value *get(object::const_reverse_iterator i) { return &i->second; }
       const value *get(object::const_iterator i) { return &i->second; }
     };
 
@@ -45,7 +45,7 @@ namespace mold { namespace vm
       }
     };
 
-    struct registry final : std::array<std::string, 8>
+    struct registry final : std::array<string, 8>
     {
     };
 
@@ -56,22 +56,23 @@ namespace mold { namespace vm
       using cursor_type = Cursor<Iterator, cursor_interface>;
       
       local &l;
-      bool reverse;
-      explicit local_initialize(local &l, bool b) : l(l), reverse(b)
+      //bool reverse;
+      explicit local_initialize(local &l/*, bool b*/) : l(l)//, reverse(b)
       {
         assert(l.cursor == nullptr && "cursor already initialized");
         if (l.context == nullptr) return;
         boost::apply_visitor(*this, *l.context);
       }
       
-      void operator()(const nil_t &s) {}
-      void operator()(const std::string &s) {}
+      void operator()(const nil &s) {}
+      void operator()(const string &s) {}
       void operator()(const object &o) { this->create_cursor(o); }
       void operator()(const array &a) { this->create_cursor(a); }
 
       template<typename T>
       void create_cursor(const T &v)
       {
+#if 0
         if (reverse) {
           using ct = cursor_type<typename T::const_reverse_iterator>;
           std::unique_ptr<ct> cursor(new ct());
@@ -83,6 +84,12 @@ namespace mold { namespace vm
           l.context = cursor->init(v.begin(), v.end());
           l.cursor = cursor.release();
         }
+#else
+        using ct = cursor_type<typename T::const_iterator>;
+        std::unique_ptr<ct> cursor(new ct());
+        l.context = cursor->init(v.begin(), v.end());
+        l.cursor = cursor.release();
+#endif
       }
     };
 
@@ -98,7 +105,7 @@ namespace mold { namespace vm
       {
       }
 
-      const value *find_var(const std::string &name) const
+      const value *find_var(const string &name) const
       {
         for (auto lit = lookup.rbegin(); lit != lookup.rend(); ++lit) {
           if ( auto o = boost::get<object>(lit->context) ) {
@@ -111,10 +118,10 @@ namespace mold { namespace vm
         return nullptr;
       }
       
-      const std::string *get_var_text(const std::string &name) const
+      const string *get_var_text(const string &name) const
       {
         if ( auto v = find_var(name) ) {
-          return boost::get<std::string>(v);
+          return boost::get<string>(v);
         }
         return nullptr;
       }
@@ -130,7 +137,7 @@ namespace mold { namespace vm
         stream << memory ;
       }
 
-      bool render_var(const std::string &name) const
+      bool render_var(const string &name) const
       {
         if ( auto s = get_var_text(name) ) {
           stream << *s ;
@@ -159,17 +166,17 @@ namespace mold { namespace vm
         memory.clear();
       }
 
-      void edit(const std::function<void(std::string &)> &edit)
+      void edit(const std::function<void(string &)> &edit)
       {
         edit(memory);
       }
 
-      void load_text(const std::string &s)
+      void load_text(const string &s)
       {
         memory += s;
       }
       
-      bool load_var(const std::string &name)
+      bool load_var(const string &name)
       {
         if ( auto s = get_var_text(name) ) {
           memory += *s;
@@ -192,7 +199,7 @@ namespace mold { namespace vm
         return false;
       }
 
-      bool has(const std::string &name)
+      bool has(const string &name)
       {
         return find_var(name) != nullptr;
       }
@@ -217,32 +224,32 @@ namespace mold { namespace vm
       void new_regs() { regs.push(registry{}); }
       void pop_regs() { regs.pop(); }
 
-      std::list<std::string> &top_stack() { return stack.top(); }
-      void new_stack() { stack.push(std::list<std::string>{}); }
-      void push_stack(const std::list<std::string> &s) { stack.push(s); }
+      std::list<string> &top_stack() { return stack.top(); }
+      void new_stack() { stack.push(std::list<string>{}); }
+      void push_stack(const std::list<string> &s) { stack.push(s); }
       void pop_stack() { stack.pop(); }
       
       void clear_stack() { stack.top().clear(); }
       
-      std::string &front() { return stack.top().front(); }
-      void shift(const std::string &s) { stack.top().push_front(s); }
+      string &front() { return stack.top().front(); }
+      void shift(const string &s) { stack.top().push_front(s); }
       void unshift() { stack.top().pop_front(); }
 
-      std::string &top() { return stack.top().back(); }
+      string &top() { return stack.top().back(); }
       void pop() { stack.top().pop_back(); }
       void push() { stack.top().push_back(memory); }
-      void push(const std::string &s) { stack.top().push_back(s); }
+      void push(const string &s) { stack.top().push_back(s); }
       void push_reg(unsigned int i) { stack.top().push_back(reg(i)); }
-      void push_var(const std::string &name) 
+      void push_var(const string &name) 
       {
         auto s = get_var_text(name);
-        stack.top().push_back(s ? *s : std::string());
+        stack.top().push_back(s ? *s : string());
       }
 
       auto size() const { return stack.top().size(); } // expensive with list
       auto empty() const { return stack.top().empty(); }
       
-      std::string &reg(unsigned n) { return regs.top()[0]; }
+      string &reg(unsigned n) { return regs.top()[0]; }
 
       template<template<typename Iterator, typename Interface> class Cursor>
       struct scope
@@ -250,10 +257,10 @@ namespace mold { namespace vm
         execution_machine &m;
         local &lookup;
         
-        scope(execution_machine &m, const std::string &name, bool reverse)
+        scope(execution_machine &m, const string &name)
           : m(m), lookup(m.new_lookup(name))
         {
-          local_initialize<Cursor> init(lookup, reverse);
+          local_initialize<Cursor> init(lookup/*, reverse*/);
           (void) init;
         }
         
@@ -283,11 +290,11 @@ namespace mold { namespace vm
       Stream &stream;
       const value root_context;
       std::list<local> lookup;
-      std::stack<std::list<std::string>> stack;
+      std::stack<std::list<string>> stack;
       std::stack<registry> regs;
-      std::string memory;
+      string memory;
 
-      local &new_lookup(const std::string &name)
+      local &new_lookup(const string &name)
       {
         // Create new lookup.
         lookup.push_back({ find_var(name) });

@@ -227,19 +227,15 @@ namespace mold { namespace domain { namespace tildache
       return ops;
     }
 
-    result_type operator()(const boost::optional<ast::tild_else_case> &sec) const
-    {
-      if (sec) return (*this)(*sec);
-      return vm::ops::nop{};
-    }
-
     result_type operator()(const ast::tild_else_case &sec) const
     {
+      if (!sec) return vm::ops::nop{};
+
       // Counting section begin directive.
       state.inline_directives += 1;
 
       vm::ops::op_list ops;
-      for (auto const &n : sec) {
+      for (auto const &n : *sec) {
         ops.push_back((*this)(n));
       }
 

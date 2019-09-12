@@ -196,7 +196,7 @@ namespace mold { namespace domain { namespace tildache { namespace ast
 }}}} // namespace mold::domain::tildache::ast
 
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::unary, op, oper)
-BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::operation, op)
+BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::operation, op, oper)
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::expression, first, rest)
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_expr, expr)
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::tild_expr_case, expr, nodes)
