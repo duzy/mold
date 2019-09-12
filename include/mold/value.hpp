@@ -23,21 +23,17 @@ namespace mold
   
   struct value;
 
-  using object = std::unordered_map<std::string, value>;
+  using string = std::string;
+  using object = std::unordered_map<string, value>;
   using array = std::vector<value>;
-  using nil_t = std::monostate;
+  using nil = std::monostate;
 
-  struct value : boost::spirit::x3::variant<
-      nil_t
-    , std::string
-    , object
-    , array
-    >
+  struct value : boost::spirit::x3::variant<nil, string, object, array>
   {
     value() : base_type() {}
-    value(const nil_t &v) : base_type(v) {}
-    value(const char *s) : base_type(std::string{s}) {}
-    value(const std::string &v) : base_type(v) {}
+    value(const nil &v) : base_type(v) {}
+    value(const char *s) : base_type(string{s}) {}
+    value(const string &v) : base_type(v) {}
     value(const object &v) : base_type(v) {}
     value(const array &v) : base_type(v) {}
   };
