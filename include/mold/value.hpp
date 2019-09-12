@@ -11,7 +11,7 @@
 # include <boost/spirit/home/x3/support/ast/variant.hpp>
 # include <string>
 # include <vector>
-# include <map>
+# include <unordered_map>
 namespace mold
 {
 
@@ -23,9 +23,9 @@ namespace mold
   
   struct value;
 
-  using object = std::map<std::string, value>;
+  using object = std::unordered_map<std::string, value>;
   using array = std::vector<value>;
-  struct nil_t {};
+  using nil_t = std::monostate;
 
   struct value : boost::spirit::x3::variant<
       nil_t
