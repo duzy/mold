@@ -43,7 +43,7 @@ namespace mold { namespace domain { namespace mustache
       for (auto const &n : l) {
         ops.push_back((*this)(n));
       }
-      return ops;
+      return { ops };
     }
 
     result_type operator()(const ast::node &n) const
@@ -59,7 +59,7 @@ namespace mold { namespace domain { namespace mustache
 
     result_type operator()(const ast::comment &) const
     {
-      return vm::ops::nop{};
+      return { vm::ops::nop{} };
     }
 
     result_type operator()(const ast::blank_text &blank) const
@@ -67,7 +67,7 @@ namespace mold { namespace domain { namespace mustache
       // Caches whitespaces to decide rendering later.
       state.whitespace += blank;
 
-      return vm::ops::nop{};
+      return { vm::ops::nop{} };
     }
 
     result_type operator()(const ast::eol &eol) const
@@ -76,7 +76,7 @@ namespace mold { namespace domain { namespace mustache
       if (state.inline_directives == 1 && state.inline_entities == 0) {
         state.inline_directives = 0;
         state.whitespace.clear();
-        return vm::ops::nop(); // Do nothing.
+        return { vm::ops::nop() }; // Do nothing.
       }
       
       state.whitespace += eol;
@@ -88,7 +88,7 @@ namespace mold { namespace domain { namespace mustache
 
       state.whitespace.clear();
       
-      return op;
+      return { op };
     }
 
     result_type operator()(const ast::eoi & /*unused*/) const
@@ -97,7 +97,7 @@ namespace mold { namespace domain { namespace mustache
       state.inline_entities = 0;
 
       if (state.whitespace.empty()) {
-        return vm::ops::end{};
+        return { vm::ops::end{} };
       }
 
       auto ops = vm::ops::op_list{
@@ -108,7 +108,7 @@ namespace mold { namespace domain { namespace mustache
       
       state.whitespace.clear();
       
-      return ops;
+      return { ops };
     }
 
     result_type operator()(const ast::literal_text &lit) const
@@ -125,7 +125,7 @@ namespace mold { namespace domain { namespace mustache
       
       ops.push_back(vm::ops::render{ 
           vm::ops::kind::immediate, lit });
-      return ops;
+      return { ops };
     }
 
     result_type operator()(const ast::variable &var) const
@@ -154,7 +154,7 @@ namespace mold { namespace domain { namespace mustache
       
       ops.push_back(vm::ops::render{ 
           vm::ops::kind::memory, "", 0, true });
-      return ops;
+      return { ops };
     }
 
     result_type operator()(const ast::section &sec) const
@@ -170,14 +170,15 @@ namespace mold { namespace domain { namespace mustache
       // Counting section end directive.
       state.inline_directives += 1;
       
-      return vm::ops::switch_context{ sec.name, sec.inverted, body };
+      return {
+        vm::ops::switch_context{ sec.name, sec.inverted, body }
+      };
     }
 
     result_type operator()(const ast::partial &par) const
     {
       // TODO: load file and compile it into a `body`
-      return vm::ops::render{ 
-        vm::ops::kind::immediate, "<partial:"+par+">" };
+      return {vm::ops::render{ vm::ops::kind::immediate, "<partial:"+par+">" }};
     }
 
   protected:

@@ -8,21 +8,21 @@
  */ 
 #ifndef _BOOST_MOLD_VM_EXECUTE_HPP_
 #define _BOOST_MOLD_VM_EXECUTE_HPP_ 1
-# include <mold/vm/details/execution_machine.hpp>
-# include <mold/vm/details/execution_visitor.hpp>
+# include <mold/vm/details/machine.hpp>
+# include <mold/vm/details/execute.hpp>
 
 namespace mold { namespace vm
 {
 
   template <typename Stream, typename Template, typename Context>
-  void execute(Stream &stream, Template const &t, Context const &context)
+  void execute(Stream& stream, Template&& t, const Context& context)
   {
-    using machine_type = details::execution_machine<Stream>;
-    machine_type machine(stream, context);
-    details::execution_visitor<machine_type> exec(machine);
-    exec(t);
+    using machine = details::machine<Stream>;
+    using executor = details::execute<machine>;
+    machine mach(stream, context);
+    executor(mach).call(t);
   }
-  
+
 }} // namespace mold::vm
 
 #endif//_BOOST_MOLD_VM_EXECUTE_HPP_

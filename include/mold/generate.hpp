@@ -13,10 +13,10 @@ namespace mold
 {
 
   template <typename Stream, typename Context>
-  void generate(Stream &stream, vm::ops::op const &op,
-      const Context &context)
+  inline void
+  generate(Stream& out, vm::ops::op&& op, const Context& ctx)
   {
-    vm::execute(stream, op, context);
+    vm::execute(out, std::move(op), ctx);
   }
   
 } // namespace mold

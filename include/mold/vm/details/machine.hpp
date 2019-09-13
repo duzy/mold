@@ -1,13 +1,13 @@
 /**
- *  \file execution_machine.hpp
+ *  \file machine.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_VM_DETAILS_EXECUTION_MACHINE_HPP_
-#define _BOOST_MOLD_VM_DETAILS_EXECUTION_MACHINE_HPP_ 1
+#ifndef _BOOST_MOLD_VM_DETAILS_MACHINE_HPP_
+#define _BOOST_MOLD_VM_DETAILS_MACHINE_HPP_ 1
 # include <mold/vm/ops.hpp>
 # include <mold/value.hpp>
 # include <stack>
@@ -94,9 +94,9 @@ namespace mold { namespace vm
     };
 
     template <typename Stream>
-    struct execution_machine
+    struct machine
     {
-      execution_machine(Stream &stream, const value &v)
+      machine(Stream &stream, const value &v)
         : stream(stream)
         , root_context(v)
         , lookup({{ &root_context }})
@@ -235,7 +235,7 @@ namespace mold { namespace vm
       void shift(const string &s) { stack.top().push_front(s); }
       void unshift() { stack.top().pop_front(); }
 
-      string &top() { return stack.top().back(); }
+      string& top() { return stack.top().back(); }
       void pop() { stack.top().pop_back(); }
       void push() { stack.top().push_back(memory); }
       void push(const string &s) { stack.top().push_back(s); }
@@ -246,18 +246,37 @@ namespace mold { namespace vm
         stack.top().push_back(s ? *s : string());
       }
 
-      auto size() const { return stack.top().size(); } // expensive with list
-      auto empty() const { return stack.top().empty(); }
+      auto caculate_stack_size() const
+      {
+        return stack.size();
+      }
+
+      // expensive operation on list
+      auto caculate_size() const
+      {
+        std::size_t result = 0;
+        if (!stack.empty())
+          result = stack.top().size();
+        return result;
+      }
+
+      auto empty() const 
+      {
+        bool result = false;
+        if (!stack.empty())
+          result = stack.top().empty();
+        return result;
+      }
       
-      string &reg(unsigned n) { return regs.top()[0]; }
+      string& reg(unsigned n) { return regs.top()[0]; }
 
       template<template<typename Iterator, typename Interface> class Cursor>
       struct scope
       {
-        execution_machine &m;
+        machine &m;
         local &lookup;
         
-        scope(execution_machine &m, const string &name)
+        scope(machine &m, const string &name)
           : m(m), lookup(m.new_lookup(name))
         {
           local_initialize<Cursor> init(lookup/*, reverse*/);
@@ -294,7 +313,7 @@ namespace mold { namespace vm
       std::stack<registry> regs;
       string memory;
 
-      local &new_lookup(const string &name)
+      local& new_lookup(const string &name)
       {
         // Create new lookup.
         lookup.push_back({ find_var(name) });
@@ -307,4 +326,4 @@ namespace mold { namespace vm
   } // namespace details
 }} // namespace mold::vm
 
-#endif//_BOOST_MOLD_VM_DETAILS_EXECUTION_MACHINE_HPP_
+#endif//_BOOST_MOLD_VM_DETAILS_MACHINE_HPP_

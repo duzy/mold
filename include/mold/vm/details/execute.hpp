@@ -1,13 +1,13 @@
 /**
- *  \file execution_visitor.hpp
+ *  \file execute.hpp
  *
  *  Copyright 2016 Duzy Chan <code@duzy.info>
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
  */ 
-#ifndef _BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_
-#define _BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_ 1
+#ifndef _BOOST_MOLD_VM_DETAILS_EXECUTE_HPP_
+#define _BOOST_MOLD_VM_DETAILS_EXECUTE_HPP_ 1
 # include <mold/vm/details/context_cursors.hpp>
 # include <mold/vm/ops.hpp>
 # include <boost/spirit/home/x3/numeric/int.hpp>
@@ -31,28 +31,25 @@ namespace mold { namespace vm
   {
     
     template <typename Machine>
-    struct execution_visitor
+    struct execute
     {
-      execution_visitor(Machine &machine) : machine(machine)
-      {
-      }
+      explicit execute(Machine& m) : machine(m) {}
 
-      void operator()(const ops::op_list &ol) const
-      {
-#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
-        std::extbit::log::printf("op_list = {}, stacks = {}", ol.size(), machine.size());
+#if 0
+      void operator()(ops::op&& op) const { apply(op); }
+#else
+      void call(const ops::op& op) const { apply(op); }
 #endif
-        for (auto const &op : ol) {
-          boost::apply_visitor(*this, op);
-        }
-      }
-    
-      void operator()(const ops::op &op) const
+
+      void operator()(const ops::op_list& ol) const
       {
-        boost::apply_visitor(*this, op);
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("op_list = {}, stacks = {}", ol.size(), machine.caculate_size());
+#endif
+        for (const ops::op& op : ol) apply(op);
       }
 
-      void operator()(const ops::undefined &op) const
+      void operator()(ops::undefined op) const
       {
 #if 0
         throw undefined_behavior();
@@ -61,19 +58,19 @@ namespace mold { namespace vm
 #endif
       }
     
-      void operator()(const ops::nop &op) const
+      void operator()(ops::nop op) const
       {
       }
 
-      void operator()(const ops::end &op) const
+      void operator()(ops::end op) const
       {
-        // FIXME: Do something for ending?
+        // TODO: ends the machine
       }
       
-      void operator()(const ops::load &op) const
+      void operator()(const ops::load& op) const
       {
-#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
-        std::extbit::log::printf("load = {}, stacks = {}", op.name, machine.size());
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("load = {{{},{}}} stacks = {}", op.k, op.s, machine.caculate_size());
 #endif
         if (!op.incremental) {
           machine.clear_memory();
@@ -97,7 +94,7 @@ namespace mold { namespace vm
         }
       }
 
-      void operator()(const ops::clear &op) const
+      void operator()(const ops::clear& op) const
       {
         switch (op.k) {
         case ops::kind::memory:
@@ -114,12 +111,12 @@ namespace mold { namespace vm
         }
       }
 
-      void operator()(const ops::edit &op) const
+      void operator()(const ops::edit& op) const
       {
         machine.edit(op.f);
       }
     
-      void operator()(const ops::render &op) const
+      void operator()(const ops::render& op) const
       {
         switch (op.k) {
         case ops::kind::immediate:
@@ -151,7 +148,7 @@ namespace mold { namespace vm
         }
       }
 
-      void operator()(const ops::for_each &op) const
+      void operator()(const ops::for_each& op) const
       {
         switch (op.source) {
         case ops::iterate_source::top_stack: break;
@@ -175,40 +172,40 @@ namespace mold { namespace vm
           
             // Skip if there's only one item and empty.
             if (i == 0 && machine.empty() && r0.empty()) {
-              boost::apply_visitor(*this, op.body_else);
+              apply(op.body_else);
               break;
             }
           
-            boost::apply_visitor(*this, op.body);
+            apply(op.body);
             i += 1;
           }
         }
       }
 
-      void operator()(const ops::if_then_else &op) const
+      void operator()(const ops::if_then_else& op) const
       {
         auto success = false;
         for (auto &s : machine.top_stack()) if ((success = !s.empty())) break;
         
         if ( success ) {
           if (!boost::get<ops::undefined>(&op.body_then))
-            boost::apply_visitor(*this, op.body_then);
+            apply(op.body_then);
         } else {
           if (!boost::get<ops::undefined>(&op.body_else))
-            boost::apply_visitor(*this, op.body_else);
+            apply(op.body_else);
         }
       }
 
-      void operator()(const ops::switch_context &op) const
+      void operator()(const ops::switch_context& op) const
       {
         typename Machine::template scope<details::context_cursor>
           scope(machine, op.name/*, op.inverted*/); // FIXME: `inverted` unused
         if (scope.is_valid()) {
-          do { boost::apply_visitor(*this, op.body); } while (scope.next());
+          do { apply(op.body); } while (scope.next());
         }
       }
 
-      void operator()(const ops::test_cursor &op) const
+      void operator()(const ops::test_cursor& op) const
       {
         using limit = std::numeric_limits<decltype(ops::test_cursor::pos)>;
         auto success = false;
@@ -223,7 +220,7 @@ namespace mold { namespace vm
         machine.push(success ? "true" : "");
       }
 
-      void operator()(const ops::push &op) const
+      void operator()(const ops::push& op) const
       {
         switch (op.k) {
         case ops::kind::immediate:
@@ -243,7 +240,7 @@ namespace mold { namespace vm
         }
       }
 
-      void operator()(const ops::pop &op) const
+      void operator()(ops::pop op) const
       {
         if (op.memorize /*&& machine.empty()*/) {
           machine.load_text(machine.top());
@@ -251,30 +248,30 @@ namespace mold { namespace vm
         machine.pop();
       }
 
-      void operator()(const ops::new_stack &op) const
+      void operator()(const ops::new_stack& op) const
       {
         machine.new_stack();
       }
 
-      void operator()(const ops::pop_stack &op) const
+      void operator()(const ops::pop_stack& op) const
       {
         machine.pop_stack();
       }
 
-      void operator()(const ops::new_regs &op) const
+      void operator()(const ops::new_regs& op) const
       {
         machine.new_regs();
       }
 
-      void operator()(const ops::pop_regs &op) const
+      void operator()(const ops::pop_regs& op) const
       {
         machine.pop_regs();
       }
       
       void operator()(ops::unary op) const
       {
-#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
-        std::extbit::log::printf("unary = {}, stacks = {}", op, machine.size());
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("unary = {}, stacks = {}", op, machine.caculate_size());
 #endif
         switch (op) {
         case ops::unary::math_negate:
@@ -304,14 +301,22 @@ namespace mold { namespace vm
 
       void operator()(ops::binary op) const
       {
-#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
-        std::extbit::log::printf("binary = {}, stacks = {}", op, machine.size());
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("binary = {}, stacks = {}", op, machine.caculate_size());
 #endif
         assert(!machine.empty());
-        auto rhs = machine.top(); machine.pop();
-        
+        using value_t = std::remove_cvref_t<decltype(machine.top())>;
+        value_t rhs = machine.top(); machine.pop();
+
+#if 0
         assert(!machine.empty());
-        auto lhs = machine.top();
+        value_t lhs = machine.top();
+#else
+        value_t lhs;
+        if (!machine.empty()) {
+          lhs = machine.top();
+        }
+#endif
         
         if (binary_test(op, lhs, rhs)) return;
         if (binary_math(op, lhs, rhs)) return;
@@ -346,7 +351,19 @@ namespace mold { namespace vm
       }
 
     private:
-      Machine &machine;
+      Machine& machine;
+
+#if 0
+      void apply(ops::op&& op) const
+      {
+        boost::apply_visitor(execute(*this), std::forward<ops::op>(op));
+      }
+#endif
+
+      void apply(const ops::op& op) const
+      {
+        boost::apply_visitor(execute(*this), op);
+      }
 
       template<typename NumType, typename String>
       static NumType parse_num(const String &s)
@@ -449,4 +466,4 @@ namespace mold { namespace vm
   } // namespace details
 }} // namespace mold::vm
 
-#endif//_BOOST_MOLD_VM_DETAILS_EXECUTION_VISITOR_HPP_
+#endif//_BOOST_MOLD_VM_DETAILS_EXECUTE_HPP_
