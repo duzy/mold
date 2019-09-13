@@ -17,6 +17,9 @@
 # include <iterator>
 # include <limits>
 # include <sstream>
+# if USE_EXTBIT_LOG
+#   include <ext/log>
+# endif
 namespace mold { namespace vm
 {
   using undefined_behavior = std::runtime_error;
@@ -36,8 +39,9 @@ namespace mold { namespace vm
 
       void operator()(const ops::op_list &ol) const
       {
-        //std::clog << "op_list: " << ol.size() << std::endl;
-        
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
+        std::extbit::log::printf("op_list = {}, stacks = {}", ol.size(), machine.size());
+#endif
         for (auto const &op : ol) {
           boost::apply_visitor(*this, op);
         }
@@ -68,8 +72,9 @@ namespace mold { namespace vm
       
       void operator()(const ops::load &op) const
       {
-        //std::clog << "load: " << op.name << std::endl;
-
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
+        std::extbit::log::printf("load = {}, stacks = {}", op.name, machine.size());
+#endif
         if (!op.incremental) {
           machine.clear_memory();
         }
@@ -268,6 +273,9 @@ namespace mold { namespace vm
       
       void operator()(ops::unary op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
+        std::extbit::log::printf("unary = {}, stacks = {}", op, machine.size());
+#endif
         switch (op) {
         case ops::unary::math_negate:
           machine.top() = to_string(-parse_num<std::int64_t>(machine.top()));
@@ -296,7 +304,9 @@ namespace mold { namespace vm
 
       void operator()(ops::binary op) const
       {
-        //std::clog << "binary: " << int(op) << ", " << machine.size() << std::endl;
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_VISITOR
+        std::extbit::log::printf("binary = {}, stacks = {}", op, machine.size());
+#endif
         assert(!machine.empty());
         auto rhs = machine.top(); machine.pop();
         

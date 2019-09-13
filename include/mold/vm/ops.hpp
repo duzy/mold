@@ -11,6 +11,9 @@
 # include <boost/spirit/home/x3/support/ast/variant.hpp>
 # include <vector>
 # include <string>
+# if USE_EXTBIT_LOG
+#   include <__formatter>
+# endif
 namespace mold { namespace vm { namespace ops 
 {
   struct for_each;
@@ -182,4 +185,58 @@ namespace mold { namespace vm { namespace ops
   
 }}} // namespace mold::vm::ops
 
+# if USE_EXTBIT_LOG
+namespace std
+{
+  template<typename Char>
+  struct formatter<mold::vm::ops::unary,Char>
+    : formatter<basic_string_view<Char>,Char>
+  {
+    template <typename FormatContext>
+    constexpr typename FormatContext::iterator
+    format(mold::vm::ops::unary op, FormatContext& context) {
+      basic_string_view<Char> name;
+      // TODO: using static reflection for names
+      switch (op) {
+      case math_posit: name = "math_posit"; break;
+      case math_negate: name = "math_negate"; break;
+      case test_negative: name = "test_negative"; break;
+      case test_positive: name = "test_positive"; break;
+      }
+      return formatter<basic_string_view<Char>,Char>
+        ::format(name, context);
+    }
+  };
+
+  template<typename Char>
+  struct formatter<mold::vm::ops::binary,Char>
+    : formatter<basic_string_view<Char>,Char>
+  {
+    template <typename FormatContext>
+    constexpr typename FormatContext::iterator
+    format(mold::vm::ops::binary op, FormatContext& context) {
+      basic_string_view<Char> name;
+      // TODO: using static reflection for names
+      switch (op) {
+      case math_plus: name = "math_plus"; break;
+      case math_minus: name ="math_minus"; break;
+      case math_times: name ="math_times"; break;
+      case math_divide: name ="math_divide"; break;
+      case test_equal: name ="test_equal"; break;
+      case test_not_equal: name ="test_not_equal"; break;
+      case test_less: name ="test_less"; break;
+      case test_less_equal: name ="test_less_equal"; break;
+      case test_greater: name ="test_greater"; break;
+      case test_greater_equal: name ="test_greater_equal"; break;
+      case test_and: name ="test_and"; break;
+      case test_or: name ="test_or"; break;
+      case range: name ="range"; break;
+      case select: name ="select"; break;
+      }
+      return formatter<basic_string_view<Char>,Char>
+        ::format(name, context);
+    }
+  };
+}
+# endif
 #endif//_BOOST_MOLD_VM_OPS_HPP_
