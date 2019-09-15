@@ -11,7 +11,6 @@ ppa *
 # include <mold/domain/mustache/translater.hpp>
 # include <mold/domain/tildache/ast.hpp>
 # include <limits>
-# include <iostream>
 namespace mold { namespace domain { namespace tildache
 {
   struct translation_state : mustache::translation_state {};
@@ -41,7 +40,9 @@ namespace mold { namespace domain { namespace tildache
     {
       /*
       if ( 0 < state.whitespace.size() ) {
-        std::clog << state.inline_directives << std::endl;
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("TODO: {}", state.inline_directives);
+#endif
         ops.push_back(vm::ops::render{ 
           vm::ops::kind::immediate, state.whitespace });
         state.whitespace.clear();
@@ -55,7 +56,9 @@ namespace mold { namespace domain { namespace tildache
 
     result_type operator()(const ast::statement &n) const
     {
-      std::clog << __PRETTY_FUNCTION__ << std::endl;
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+      std::extbit::log::print("TODO: statement");
+#endif
       return vm::ops::op{};
     }
 
@@ -117,7 +120,9 @@ namespace mold { namespace domain { namespace tildache
           break;
           
         default:
-          std::clog << __PRETTY_FUNCTION__ << std::endl;
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+          std::extbit::log::print("TODO: {}", operation.op);
+#endif
           return vm::ops::op{ /* undefined*/ };
         }
       }
@@ -254,6 +259,9 @@ namespace mold { namespace domain { namespace tildache
 
     result_type operator()(ast::predictor pred) const
     {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+      std::extbit::log::printf("predictor: {}", pred);
+#endif
       using limit = std::numeric_limits<
         decltype(vm::ops::test_cursor::pos)>;
       switch (pred) {

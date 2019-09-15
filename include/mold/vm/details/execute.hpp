@@ -1,7 +1,7 @@
 /**
  *  \file execute.hpp
  *
- *  Copyright 2016 Duzy Chan <code@extbit.io>
+ *  Copyright 2016 Duzy Chan <code@extbit.io>, ExtBit Limited
  *  
  *  Distributed under the Boost Software License, Version 1.0. (See accompanying
  *  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -51,6 +51,10 @@ namespace mold { namespace vm
 
       void operator()(ops::undefined op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("undefined, stacks = {}", machine.caculate_size());
+#endif
+
 #if 0
         throw undefined_behavior();
 #else
@@ -60,17 +64,24 @@ namespace mold { namespace vm
     
       void operator()(ops::nop op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("nop, stacks = {}", machine.caculate_size());
+#endif
       }
 
       void operator()(ops::end op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("end, stacks = {}", machine.caculate_size());
+#endif
+
         // TODO: ends the machine
       }
       
       void operator()(const ops::load& op) const
       {
 #if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
-        std::extbit::log::printf("load = {{{},{}}} stacks = {}", op.k, op.s, machine.caculate_size());
+        std::extbit::log::printf("load = {{{}, {}, {}, {}}} stacks = {}", op.k, op.s, op.i, op.incremental, machine.caculate_size());
 #endif
         if (!op.incremental) {
           machine.clear_memory();
@@ -96,6 +107,10 @@ namespace mold { namespace vm
 
       void operator()(const ops::clear& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("clear = {{{}}}, stacks = {}", op.k, machine.caculate_size());
+#endif
+
         switch (op.k) {
         case ops::kind::memory:
           machine.clear_memory();
@@ -113,11 +128,17 @@ namespace mold { namespace vm
 
       void operator()(const ops::edit& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("edit, stacks = {}", machine.caculate_size());
+#endif
         machine.edit(op.f);
       }
     
       void operator()(const ops::render& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::printf("render = {{{}, \"{}\", {}, {}}}", op.k, op.s, op.i, op.flush);
+#endif
         switch (op.k) {
         case ops::kind::immediate:
           machine.render(op.s);
@@ -150,6 +171,9 @@ namespace mold { namespace vm
 
       void operator()(const ops::for_each& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("for_each, stacks = {}", machine.caculate_size());
+#endif
         switch (op.source) {
         case ops::iterate_source::top_stack: break;
         case ops::iterate_source::top_intersection:
@@ -184,6 +208,9 @@ namespace mold { namespace vm
 
       void operator()(const ops::if_then_else& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("if_then_else, stacks = {}", machine.caculate_size());
+#endif
         auto success = false;
         for (auto &s : machine.top_stack()) if ((success = !s.empty())) break;
         
@@ -198,6 +225,9 @@ namespace mold { namespace vm
 
       void operator()(const ops::switch_context& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_EXECUTION_LOG
+        std::extbit::log::printf("switch_context, stacks = {}", machine.caculate_size());
+#endif
         typename Machine::template scope<details::context_cursor>
           scope(machine, op.name/*, op.inverted*/); // FIXME: `inverted` unused
         if (scope.is_valid()) {
@@ -208,6 +238,9 @@ namespace mold { namespace vm
       void operator()(const ops::test_cursor& op) const
       {
         using limit = std::numeric_limits<decltype(ops::test_cursor::pos)>;
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::printf("test_cursor = {{{}}}, [{}, {}]", op.pos, limit::min(), limit::max());
+#endif
         auto success = false;
         switch (op.pos) {
         case limit::min():
@@ -222,6 +255,9 @@ namespace mold { namespace vm
 
       void operator()(const ops::push& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::printf("push = {{{}}}", op.k);
+#endif
         switch (op.k) {
         case ops::kind::immediate:
           machine.push(op.s);
@@ -242,7 +278,10 @@ namespace mold { namespace vm
 
       void operator()(ops::pop op) const
       {
-        if (op.memorize /*&& machine.empty()*/) {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("pop");
+#endif
+        if (op.memorize /*&& !machine.empty()*/) {
           machine.load_text(machine.top());
         }
         machine.pop();
@@ -250,21 +289,33 @@ namespace mold { namespace vm
 
       void operator()(const ops::new_stack& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("new_stack");
+#endif
         machine.new_stack();
       }
 
       void operator()(const ops::pop_stack& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("pop_stack");
+#endif
         machine.pop_stack();
       }
 
       void operator()(const ops::new_regs& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("new_regs");
+#endif
         machine.new_regs();
       }
 
       void operator()(const ops::pop_regs& op) const
       {
+#if USE_EXTBIT_LOG && ENABLE_TRANSLATION_LOG
+        std::extbit::log::print("pop_regs");
+#endif
         machine.pop_regs();
       }
       
@@ -275,10 +326,10 @@ namespace mold { namespace vm
 #endif
         switch (op) {
         case ops::unary::math_negate:
-          machine.top() = to_string(-parse_num<std::int64_t>(machine.top()));
+          machine.top() = to_string(-to_number<std::int64_t>(machine.top()));
           return;
         case ops::unary::math_posit:
-          machine.top() = to_string(parse_num<std::int64_t>(machine.top()));
+          machine.top() = to_string(to_number<std::int64_t>(machine.top()));
           return;
         case ops::unary::test_negative:
           if (machine.empty()) {
@@ -317,17 +368,56 @@ namespace mold { namespace vm
           lhs = machine.top();
         }
 #endif
-        
-        if (binary_test(op, lhs, rhs)) return;
-        if (binary_math(op, lhs, rhs)) return;
 
         switch (op) {
+        case ops::binary::test_equal:
+          machine.top() = to_string(lhs == rhs);
+          return;
+        case ops::binary::test_not_equal:
+          machine.top() = to_string(lhs != rhs);
+          return;
+        case ops::binary::test_less:
+          machine.top() = to_string(lhs < rhs);
+          return;
+        case ops::binary::test_less_equal:
+          machine.top() = to_string(lhs <= rhs);
+          return;
+        case ops::binary::test_greater:
+          machine.top() = to_string(lhs > rhs);
+          return;
+        case ops::binary::test_greater_equal:
+          machine.top() = to_string(lhs >= rhs);
+          return;
+        case ops::binary::test_and:
+          machine.top() = to_string(!lhs.empty() && !rhs.empty());
+          return;
+        case ops::binary::test_or:
+          machine.top() = to_string(!lhs.empty() || !rhs.empty());
+          return;
+
+        case ops::binary::math_plus: 
+          machine.top() = to_string(to_number<std::int64_t>(lhs) + to_number<std::int64_t>(rhs));
+          return;
+        case ops::binary::math_minus: 
+          machine.top() = to_string(to_number<std::int64_t>(lhs) - to_number<std::int64_t>(rhs));
+          return;
+        case ops::binary::math_times: 
+          machine.top() = to_string(to_number<std::int64_t>(lhs) * to_number<std::int64_t>(rhs));
+          return;
+        case ops::binary::math_divide: 
+          if (auto num = to_number<std::int64_t>(rhs); num == 0) {
+            machine.top() = "NaN";
+          } else {
+            machine.top() = to_string(to_number<std::int64_t>(lhs) / num);
+          }
+          return;
+
         case ops::binary::range: 
           {
             auto i = lhs.begin();
-            auto a = parse_num<std::int64_t>(i, lhs.end());
+            auto a = to_number<std::int64_t>(i, lhs.end());
             auto j = rhs.begin();
-            auto b = parse_num<std::int64_t>(j, rhs.end());
+            auto b = to_number<std::int64_t>(j, rhs.end());
             machine.pop(); // remove lhs from stack
             if (lhs.begin() < i || rhs.begin() < j) {
               if (1024 < b - a) throw exceeds_max_range("exceeds max range");
@@ -366,14 +456,14 @@ namespace mold { namespace vm
       }
 
       template<typename NumType, typename String>
-      static NumType parse_num(const String &s)
+      static NumType to_number(const String &s)
       {
         auto i = s.begin();
-        return parse_num<NumType>(i, s.end());
+        return to_number<NumType>(i, s.end());
       }
       
       template<typename NumType, typename Iterator>
-      static NumType parse_num(Iterator &a, const Iterator &b)
+      static NumType to_number(Iterator &a, const Iterator &b)
       {
         using boost::spirit::x3::phrase_parse;
         using boost::spirit::x3::space;
@@ -398,68 +488,6 @@ namespace mold { namespace vm
         std::ostringstream ss;
         ss << (v ? "true" : "");
         return ss.str();
-      }
-
-      bool binary_test(ops::binary op, const std::string &lhs, const std::string &rhs) const
-      {
-        switch (op) {
-        case ops::binary::test_equal:
-          machine.top() = to_string(lhs == rhs);
-          return true;
-        case ops::binary::test_not_equal:
-          machine.top() = to_string(lhs != rhs);
-          return true;
-        case ops::binary::test_less:
-          machine.top() = to_string(lhs < rhs);
-          return true;
-        case ops::binary::test_less_equal:
-          machine.top() = to_string(lhs <= rhs);
-          return true;
-        case ops::binary::test_greater:
-          machine.top() = to_string(lhs > rhs);
-          return true;
-        case ops::binary::test_greater_equal:
-          machine.top() = to_string(lhs >= rhs);
-          return true;
-        case ops::binary::test_and:
-          machine.top() = to_string(!lhs.empty() && !rhs.empty());
-          return true;
-        case ops::binary::test_or:
-          machine.top() = to_string(!lhs.empty() || !rhs.empty());
-          return true;
-
-        default:
-          break; //throw unexpected_operation("unexpected operation");
-        }
-        return false;
-      }
-      
-      bool binary_math(ops::binary op, const std::string &lhss, const std::string &rhss) const
-      {
-        auto lhs = parse_num<std::int64_t>(lhss);
-        auto rhs = parse_num<std::int64_t>(rhss);
-        switch (op) {
-        case ops::binary::math_plus: 
-          machine.top() = to_string(lhs + rhs);
-          return true;
-        case ops::binary::math_minus: 
-          machine.top() = to_string(lhs - rhs);
-          return true;
-        case ops::binary::math_times: 
-          machine.top() = to_string(lhs * rhs);
-          return true;
-        case ops::binary::math_divide: 
-          if (rhs == 0) {
-            machine.top() = "NaN";
-          } else {
-            machine.top() = to_string(lhs / rhs);
-          }
-          return true;
-
-        default:
-          break; //throw unexpected_operation("unexpected operation");
-        }
-        return false;
       }
     };
 

@@ -39,6 +39,25 @@ namespace mold { namespace domain { namespace tildache { namespace ast
     {
      underscore,
     };
+
+  inline const std::string_view as_name(predictor op) noexcept
+  {
+    // TODO: using static reflection for names
+    static const char* names[] = {
+      "first",
+      "last",
+    };
+    return { names[static_cast<int>(op)] };
+  }
+
+  inline const std::string_view as_name(placeholder op) noexcept
+  {
+    // TODO: using static reflection for names
+    static const char* names[] = {
+      "_", // underscore
+    };
+    return { names[static_cast<int>(op)] };
+  }
   
   struct operand : boost::spirit::x3::variant<
     nil, predictor, placeholder,
@@ -81,6 +100,32 @@ namespace mold { namespace domain { namespace tildache { namespace ast
      op_sel,   // :
      op_push,  // ,
     };
+
+  inline const std::string_view as_name(optoken op) noexcept
+  {
+    // TODO: using static reflection for names
+    static const char* names[] = {
+      "op_plus",
+      "op_minus",
+      "op_times",
+      "op_divide",
+      "op_positive",
+      "op_negative",
+      "op_not",
+      "op_equal",
+      "op_not_equal",
+      "op_less",
+      "op_less_equal",
+      "op_greater",
+      "op_greater_equal",
+      "op_and",
+      "op_or",
+      "op_range", // ..
+      "op_sel",   // :
+      "op_push",  // ,
+    };
+    return { names[static_cast<int>(op)] };
+  }
 
   struct unary
   {
@@ -194,6 +239,48 @@ namespace mold { namespace domain { namespace tildache { namespace ast
   };
 
 }}}} // namespace mold::domain::tildache::ast
+
+#if USE_EXTBIT_LOG
+namespace std
+{
+  template<typename Char>
+  struct formatter<mold::domain::tildache::ast::predictor,Char>
+    : formatter<string_view,Char>
+  {
+    template <typename FormatContext>
+    constexpr typename FormatContext::iterator
+    format(mold::domain::tildache::ast::predictor v, FormatContext& context) {
+      return formatter<string_view,Char>
+        ::format(mold::domain::tildache::ast::as_name(v), context);
+    }
+  };
+
+  template<typename Char>
+  struct formatter<mold::domain::tildache::ast::placeholder,Char>
+    : formatter<string_view,Char>
+  {
+    template <typename FormatContext>
+    constexpr typename FormatContext::iterator
+    format(mold::domain::tildache::ast::placeholder v, FormatContext& context) {
+      return formatter<string_view,Char>
+        ::format(mold::domain::tildache::ast::as_name(v), context);
+    }
+  };
+
+  template<typename Char>
+  struct formatter<mold::domain::tildache::ast::optoken,Char>
+    : formatter<string_view,Char>
+  {
+    template <typename FormatContext>
+    constexpr typename FormatContext::iterator
+    format(mold::domain::tildache::ast::optoken v, FormatContext& context) {
+      return formatter<string_view,Char>
+        ::format(mold::domain::tildache::ast::as_name(v), context);
+    }
+  };
+  
+} // namespace std
+#endif// USE_EXTBIT_LOG
 
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::unary, op, oper)
 BOOST_FUSION_ADAPT_STRUCT(mold::domain::tildache::ast::operation, op, oper)

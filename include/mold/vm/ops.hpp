@@ -75,7 +75,7 @@ namespace mold { namespace vm { namespace ops
     kind k = kind::undefined;
     std::string s; //!< immediate, memory
     unsigned int i = 0; //!< reg
-    bool flush; // flush memory, stack or reg
+    bool flush = false; // flush memory, stack or reg
   };
 
   struct test_cursor

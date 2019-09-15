@@ -12,6 +12,9 @@
 # include <boost/fusion/include/adapt_struct.hpp>
 # include <forward_list>
 # include <string>
+# if USE_EXTBIT_LOG
+#   include <__formatter>
+# endif
 namespace boost { namespace spirit { namespace x3 { namespace traits
 {
   template <typename T>

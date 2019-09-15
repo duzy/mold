@@ -96,8 +96,8 @@ namespace mold { namespace vm
     template <typename Stream>
     struct machine
     {
-      machine(Stream &stream, const value &v)
-        : stream(stream)
+      machine(Stream &out, const value &v)
+        : stream(out)
         , root_context(v)
         , lookup({{ &root_context }})
         , stack()
