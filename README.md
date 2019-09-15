@@ -1,33 +1,42 @@
 # mold
 
-Mold is a **C++ Template Engine Library**, a header-only library supports
-multiple domain languages.
+Mold is a **C++ Text Engine**. It's a header-only library for generating
+text from a template and a set of data (feed).
 
-The [mold][] engine has a stacked-based virtual machine implementation, it's
-execution is operating on text to generate text output to a stream or produce
-a value from the program. The goal of the virtual machine is text operations
-instead of fast computation although it's still capable of doing mathmatical
-and logical computation.
-
-All domain languages are compiled into programs for the virtual machine. It's
-possible to support many advanced languages.
-
-Support: https://www.bountysource.com/teams/mold -- [Salt It Now!](https://salt.bountysource.com/checkout/amount?team=mold])
+Support: [Salt It!](https://salt.bountysource.com/checkout/amount?team=mold])
 
 Introduction
 ------------
 
-The **mold** engine is inspired by [boostache][]. Reasons why I started
-**mold** as a new project and deprecated [boostache][] are:
+Templates can be defined in different domain languages, here now we already
+have [Mustache][mustache] and [Tildache][tildache], could implement more
+text domain languages. And the data set (feeds the template) is contained
+by `mold::object`. Text templates written in a domain language
+(such as [Tildache][tildache]) are compiled into a [Mold][mold] **program**
+(a sequence of operations) and further executed by the virtual
+machine to create the text output.
 
-  * [boostache][] is still buggy (e.g. not fully working with the [mustache][] spec).
-  * [boostache][] source code seems to be immature so far and not updated.
+The engine is running on a stacked-based virtual machine. Which executes a
+sequence of text operations (see `ops.hpp`) and renders desired text
+(defined by the template) to a `std::ostream`. The virtual machine is not
+for generic computing. Instead, it focuses on text processing. So the
+registers are `std::string` based, rather then `int` or `float`. But it do
+supports some basic arithmatic and logical computation.
 
-The primary goal of **mold** is at least a fully working [mustache][] engine.
+Notes
+-----
+
+The **mold** engine is inspired by [Boostache][boostache]. Reasons why I started
+**mold** as a new project and deprecated [Boostache][boostache] are:
+
+  * [Boostache][boostache] is still buggy (e.g. not fully working with the [Mustache][mustache] spec).
+  * [Boostache][boostache] source code seems to be immature so far and not updated.
+
+The primary goal of **mold** is at least a fully working [Mustache][mustache] engine.
 The long term (possible) goals are:
 
   * Performance improvement: avoid many string copy operations.
-  * Support multiple domain languages after [mustache][] is done.
+  * Support multiple domain languages after [Mustache][mustache] is done.
   * Mordern C++ design and C++1z friendly.
   * Persistant byte code representation.
 
@@ -91,10 +100,11 @@ Supported Formats
 
 The **mold** engine supports multiple template domain languages. Currently it has:
 
-  * [mustache][] - Logic-less templates.
-  * [tildache][] - A variant of [mustache][] with [tild extensions][tild-ext]. (*)
+  * [Mustache][mustache] - Logic-less templates.
+  * [Tildache][tildache] - A variant of [Mustache][mustache] with [tild extensions][tild-ext]. (*)
 
 [boostache]: https://github.com/cierelabs/boostache
 [mustache]: http://mustache.github.io/mustache.5.html
 [tildache]: https://github.com/duzy/mold/wiki/tildache
 [tild-ext]: https://github.com/duzy/mold/wiki/tild-extensions
+[mold]: https://github.com/extbit/mold
