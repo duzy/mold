@@ -3,8 +3,6 @@
 Mold is a **C++ Text Engine**. It's a header-only library for generating
 text from a template and a set of data (feed).
 
-Support: [Salt It!](https://salt.bountysource.com/checkout/amount?team=mold])
-
 Introduction
 ------------
 
