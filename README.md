@@ -93,6 +93,11 @@ Expected result on `std::cout`:
   
 ```
 
+TODO
+--------
+* Get rid of boost::spirit, wirte parser from scratch instead to make it zero dependency and standalone
+* Improve performance for string processing, reduce copies, memory allocaition, etc.
+
 Supported Formats
 -----------------
 
